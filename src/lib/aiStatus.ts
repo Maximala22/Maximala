@@ -1,4 +1,4 @@
-import { getActiveJobs } from "./storage";
+import { getActiveJobs, getLastBackupAt } from "./storage";
 import { getWorkLogs } from "./fleetStorage";
 import { todayISO } from "./utils";
 
@@ -20,6 +20,50 @@ export function getStatusSummary(): StatusSummary {
   const workLogs = getWorkLogs();
   const today = todayISO();
   const items: StatusItem[] = [];
+
+  const lastBackup = getLastBackupAt();
+  if (!lastBackup) {
+    items.push({
+      id: "no-backup",
+      message: "Backup saknas — exportera en kopia",
+      href: "/meny",
+    });
+  } else {
+    const days = Math.floor((Date.now() - new Date(lastBackup).getTime()) / (1000 * 60 * 60 * 24));
+    if (days > 14) {
+      items.push({
+        id: "old-backup",
+        message: `Backup är ${days} dagar gammal`,
+        href: "/meny",
+      });
+    }
+  }
+
+  const todaysLogs = workLogs.filter((l) => l.date === today);
+  if (todaysLogs.length === 0 && jobs.length > 0) {
+    items.push({
+      id: "no-report-today",
+      message: "Ingen rapport idag",
+      href: "/fordon",
+    });
+  }
+
+  const missingImage = jobs.filter((j) => !j.imageIds?.length);
+  if (missingImage.length > 0 && missingImage.length <= 3) {
+    missingImage.forEach((j) =>
+      items.push({
+        id: `img-${j.id}`,
+        message: `"${j.title}" saknar bild`,
+        href: `/jobb/${j.id}`,
+      })
+    );
+  } else if (missingImage.length > 3) {
+    items.push({
+      id: "missing-images",
+      message: `${missingImage.length} jobb saknar bild`,
+      href: "/jobb",
+    });
+  }
 
   const missingAddress = jobs.filter((j) => !j.address?.trim());
   if (missingAddress.length > 0) {
@@ -66,7 +110,6 @@ export function getStatusSummary(): StatusSummary {
     });
   }
 
-  const todaysLogs = workLogs.filter((l) => l.date === today);
   const missingHours = todaysLogs.filter((l) => l.hours === undefined || l.hours === null);
   if (missingHours.length > 0) {
     items.push({

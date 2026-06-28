@@ -1,15 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import Button from "@/components/Button";
 import ImageUpload from "@/components/ImageUpload";
+import PageContainer from "@/components/PageContainer";
 import { createJob } from "@/lib/storage";
 import { JOB_STATUSES, type JobStatus } from "@/lib/types";
 
 export default function NyttJobbPage() {
+  return (
+    <Suspense
+      fallback={
+        <PageContainer>
+          <Header title="Nytt jobb" subtitle="Skapa jobb snabbt" backHref="/jobb" />
+          <p className="mt-8 text-center text-muted">Laddar…</p>
+        </PageContainer>
+      }
+    >
+      <NyttJobbForm />
+    </Suspense>
+  );
+}
+
+function NyttJobbForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [title, setTitle] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -22,6 +39,14 @@ export default function NyttJobbPage() {
   const [description, setDescription] = useState("");
   const [notes, setNotes] = useState("");
   const [imageIds, setImageIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const presetDate = searchParams.get("date");
+    if (presetDate) {
+      setDate(presetDate);
+      setShowMore(true);
+    }
+  }, [searchParams]);
 
   const handleSave = () => {
     if (!title.trim()) return;
@@ -42,8 +67,8 @@ export default function NyttJobbPage() {
   };
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-6">
-      <Header title="Nytt jobb" subtitle="Snabbt jobb" backHref="/jobb" />
+    <PageContainer>
+      <Header title="Nytt jobb" subtitle="Skapa jobb snabbt" backHref="/jobb" />
 
       <div className="mt-4 space-y-4">
         <Field label="Titel *" value={title} onChange={setTitle} placeholder="t.ex. Schaktning" />
@@ -93,7 +118,7 @@ export default function NyttJobbPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

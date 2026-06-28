@@ -2,7 +2,7 @@ import BrandLogo from "./BrandLogo";
 
 type LogoProps = {
   size?: "small" | "medium" | "large" | "sm" | "md" | "lg";
-  variant?: "plain" | "card";
+  variant?: "plain" | "soft";
   className?: string;
 };
 

@@ -41,7 +41,7 @@ export default function InstalleraPage() {
           <Card className="mt-6 flex flex-col items-center py-8">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/icons/icon-192.png?v=3"
+              src="/icons/icon-192.png?v=5"
               alt="Jobbminne appikon"
               className="h-28 w-28 rounded-[22%] object-cover shadow-lift"
             />

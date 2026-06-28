@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, Plus, ClipboardList } from "lucide-react";
 import Header from "@/components/Header";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
@@ -10,6 +10,7 @@ import StatusPill from "@/components/StatusPill";
 import PageContainer from "@/components/PageContainer";
 import SectionTitle from "@/components/SectionTitle";
 import { getActiveJobs, getJobsForDate } from "@/lib/storage";
+import { getWorkLogsForDate } from "@/lib/fleetStorage";
 import { createJobsIcs, downloadIcsFile, getDaysInMonth, getFirstDayOfMonth } from "@/lib/calendar";
 import { capitalizeFirst } from "@/lib/utils";
 
@@ -27,6 +28,7 @@ export default function KalenderPage() {
 
   const jobsOnDate = (dateStr: string) => allJobs.filter((j) => j.date === dateStr);
   const selectedJobs = getJobsForDate(selectedDate);
+  const selectedLogs = getWorkLogsForDate(selectedDate);
 
   const prevMonth = () => {
     if (month === 0) { setMonth(11); setYear(year - 1); }
@@ -51,32 +53,40 @@ export default function KalenderPage() {
 
   const todayStr = now.toISOString().split("T")[0];
 
+  const dayLabel = capitalizeFirst(
+    new Date(selectedDate).toLocaleDateString("sv-SE", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    })
+  );
+
   return (
     <PageContainer>
-      <Header title="Kalender" subtitle="Jobb per dag" />
+      <Header title="Kalender" subtitle="Jobb och rapporter per dag" />
 
-      <Card className="mt-5">
-        <div className="mb-5 flex items-center justify-between">
+      <Card className="mt-4">
+        <div className="mb-4 flex items-center justify-between">
           <button
             onClick={prevMonth}
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-primary transition active:bg-background"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-primary transition active:bg-background"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <p className="font-semibold capitalize">{monthName}</p>
           <button
             onClick={nextMonth}
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-primary transition active:bg-background"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-primary transition active:bg-background"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
-        <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-wide text-muted">
+        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-wide text-muted">
           {WEEKDAYS.map((d) => (
             <div key={d} className="py-1">{d}</div>
           ))}
         </div>
-        <div className="mt-2 grid grid-cols-7 gap-1.5">
+        <div className="mt-1.5 grid grid-cols-7 gap-1">
           {cells.map((day, i) => {
             if (!day) return <div key={`empty-${i}`} />;
             const ds = dateStr(day);
@@ -87,7 +97,7 @@ export default function KalenderPage() {
               <button
                 key={ds}
                 onClick={() => setSelectedDate(ds)}
-                className={`relative flex aspect-square items-center justify-center rounded-xl text-sm font-medium transition active:scale-95 ${
+                className={`relative flex aspect-square items-center justify-center rounded-lg text-sm font-medium transition active:scale-95 ${
                   isSelected
                     ? "bg-primary text-white shadow-warm"
                     : isToday
@@ -98,7 +108,7 @@ export default function KalenderPage() {
                 {day}
                 {count > 0 && (
                   <span
-                    className={`absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full ${
+                    className={`absolute bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full ${
                       isSelected ? "bg-white" : "bg-primary"
                     }`}
                   />
@@ -109,40 +119,74 @@ export default function KalenderPage() {
         </div>
       </Card>
 
-      <section className="mt-8">
-        <SectionTitle>
-          {capitalizeFirst(
-            new Date(selectedDate).toLocaleDateString("sv-SE", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-            })
-          )}
-        </SectionTitle>
-        {selectedJobs.length === 0 ? (
-          <Card className="flex flex-col items-center py-8 text-center">
+      <section className="mt-5">
+        <SectionTitle>{dayLabel}</SectionTitle>
+
+        {selectedJobs.length === 0 && selectedLogs.length === 0 ? (
+          <Card className="flex flex-col items-center py-6 text-center">
             <CalendarDays className="mb-3 h-8 w-8 text-muted" />
             <p className="text-muted">Inga jobb denna dag.</p>
+            <div className="mt-4 flex w-full flex-col gap-2">
+              <Link href={`/jobb/ny?date=${selectedDate}`}>
+                <Button fullWidth variant="secondary" className="gap-2">
+                  <Plus className="h-4 w-4" /> Skapa jobb denna dag
+                </Button>
+              </Link>
+              <Link href="/fordon">
+                <Button fullWidth variant="secondary" className="gap-2">
+                  <ClipboardList className="h-4 w-4" /> Lägg rapport
+                </Button>
+              </Link>
+            </div>
           </Card>
         ) : (
-          selectedJobs.map((job) => (
-            <Link key={job.id} href={`/jobb/${job.id}`}>
-              <Card interactive className="mb-2 flex items-center justify-between py-4">
-                <div>
-                  <p className="font-semibold">{job.title}</p>
-                  {job.time && <p className="text-sm text-muted">kl. {job.time}</p>}
-                </div>
-                <StatusPill status={job.status} />
-              </Card>
-            </Link>
-          ))
+          <>
+            {selectedJobs.map((job) => (
+              <Link key={job.id} href={`/jobb/${job.id}`}>
+                <Card interactive className="mb-2 flex items-center justify-between py-3.5">
+                  <div>
+                    <p className="font-semibold">{job.title}</p>
+                    {job.time && <p className="text-sm text-muted">kl. {job.time}</p>}
+                  </div>
+                  <StatusPill status={job.status} />
+                </Card>
+              </Link>
+            ))}
+            {selectedLogs.length > 0 && (
+              <div className="mt-3">
+                <p className="mb-2 text-xs font-semibold uppercase text-muted">Rapporter</p>
+                {selectedLogs.map((log) => (
+                  <Card key={log.id} className="mb-2 py-3">
+                    <p className="text-sm font-medium">
+                      {log.driverName} · {log.hours ?? "–"} h
+                    </p>
+                    {log.description && (
+                      <p className="mt-0.5 line-clamp-1 text-xs text-muted">{log.description}</p>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            )}
+            <div className="mt-3 flex flex-col gap-2">
+              <Link href={`/jobb/ny?date=${selectedDate}`}>
+                <Button fullWidth variant="secondary" size="sm" className="gap-2">
+                  <Plus className="h-4 w-4" /> Skapa jobb denna dag
+                </Button>
+              </Link>
+              <Link href="/fordon">
+                <Button fullWidth variant="secondary" size="sm" className="gap-2">
+                  <ClipboardList className="h-4 w-4" /> Lägg rapport
+                </Button>
+              </Link>
+            </div>
+          </>
         )}
       </section>
 
       {selectedJobs.length > 0 && (
         <Button
           fullWidth
-          className="mt-5"
+          className="mt-4"
           variant="secondary"
           onClick={() =>
             downloadIcsFile(`jobb-${selectedDate}.ics`, createJobsIcs(selectedJobs))

@@ -11,10 +11,10 @@ export default function PageContainer({ children, className, compact }: PageCont
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-md px-5",
+        "mx-auto w-full max-w-md px-4",
         compact
-          ? "pb-6 pt-[max(1rem,env(safe-area-inset-top))]"
-          : "pb-[calc(96px+env(safe-area-inset-bottom,0px))] pt-[max(1rem,env(safe-area-inset-top))]",
+          ? "pb-6 pt-[max(0.75rem,env(safe-area-inset-top))]"
+          : "pb-[calc(120px+env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top))]",
         className
       )}
     >

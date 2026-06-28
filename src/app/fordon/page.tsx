@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { ChevronLeft, ChevronRight, MapPin, Printer, Pencil, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Printer, Pencil, Trash2, Search } from "lucide-react";
 import Header from "@/components/Header";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
@@ -23,14 +23,36 @@ import {
 import { formatHours, openMaps, todayISO } from "@/lib/utils";
 import { printWorkLog } from "@/lib/print";
 
+const LIST_LIMIT = 6;
+
 export default function FordonPage() {
   const [selectedDate, setSelectedDate] = useState(todayISO());
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAllVehicles, setShowAllVehicles] = useState(false);
+  const [showAllStaff, setShowAllStaff] = useState(false);
   const [, refresh] = useState(0);
 
   const logs = getWorkLogsForDate(selectedDate);
   const totalHours = getTotalHoursForDate(selectedDate);
+  const isToday = selectedDate === todayISO();
+
+  const vehicles = getActiveVehicles().filter(
+    (v) =>
+      !searchQuery ||
+      v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      v.regNumber?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const staff = getActiveStaff().filter(
+    (s) =>
+      !searchQuery ||
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.role?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const visibleVehicles = showAllVehicles ? vehicles : vehicles.slice(0, LIST_LIMIT);
+  const visibleStaff = showAllStaff ? staff : staff.slice(0, LIST_LIMIT);
 
   const shiftDate = (days: number) => {
     const d = new Date(selectedDate);
@@ -38,57 +60,95 @@ export default function FordonPage() {
     setSelectedDate(d.toISOString().split("T")[0]);
   };
 
+  const openNewReport = () => {
+    setEditingId(null);
+    setShowForm(true);
+  };
+
   return (
     <PageContainer>
       <Header
         title="Fordon & personal"
-        subtitle="Planera vem som kör vad och skriv vad som gjorts idag."
+        subtitle="Lägg dagsrapport snabbt — vem körde vad och vad gjordes."
       />
 
-      <Card className="mt-5 flex items-center justify-between py-3">
+      <Card className="mt-4 flex items-center justify-between py-2.5">
         <button
           onClick={() => shiftDate(-1)}
           className="flex items-center gap-1 rounded-xl px-2 py-2 text-sm font-medium text-primary transition active:opacity-70"
         >
           <ChevronLeft className="h-4 w-4" />
-          Föregående
         </button>
-        <button
-          onClick={() => setSelectedDate(todayISO())}
-          className="rounded-xl bg-primary/10 px-4 py-2 text-sm font-semibold text-primary"
-        >
-          Idag
-        </button>
+        <div className="text-center">
+          <button
+            onClick={() => setSelectedDate(todayISO())}
+            className="rounded-xl bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary"
+          >
+            {isToday ? "Idag" : "Gå till idag"}
+          </button>
+          <p className="mt-1 text-xs text-muted">
+            {new Date(selectedDate).toLocaleDateString("sv-SE", {
+              weekday: "short",
+              day: "numeric",
+              month: "short",
+            })}
+          </p>
+        </div>
         <button
           onClick={() => shiftDate(1)}
           className="flex items-center gap-1 rounded-xl px-2 py-2 text-sm font-medium text-primary transition active:opacity-70"
         >
-          Nästa
           <ChevronRight className="h-4 w-4" />
         </button>
       </Card>
-      <p className="mt-2 text-center text-sm text-muted">
-        {new Date(selectedDate).toLocaleDateString("sv-SE", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-        })}
-      </p>
 
-      <section className="mt-8">
-        <div className="mb-3 flex items-center justify-between">
+      <Card className="mt-3 flex items-center justify-between py-3">
+        <p className="text-sm text-muted">Total rapporttid</p>
+        <p className="text-lg font-bold text-primary">{formatHours(totalHours)} h</p>
+      </Card>
+
+      <Button fullWidth className="mt-4" onClick={() => (showForm ? setShowForm(false) : openNewReport())}>
+        {showForm ? "Stäng formulär" : "+ Lägg till dagsrapport"}
+      </Button>
+
+      {showForm && (
+        <WorkLogForm
+          date={selectedDate}
+          editId={editingId}
+          onSave={() => {
+            setShowForm(false);
+            setEditingId(null);
+            refresh((n) => n + 1);
+          }}
+        />
+      )}
+
+      <div className="relative mt-4">
+        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Sök förare, fordon eller regnummer…"
+          className="input-field pl-10"
+        />
+      </div>
+
+      <section className="mt-5">
+        <div className="mb-2 flex items-center justify-between">
           <SectionTitle className="mb-0">Dagens rapporter</SectionTitle>
-          <p className="text-sm font-bold text-primary">
-            Totalt: {formatHours(totalHours)} h
-          </p>
+          <span className="text-xs font-medium text-muted">{logs.length} st</span>
         </div>
         {logs.length === 0 ? (
-          <Card className="py-6 text-center">
-            <p className="text-muted">Inga rapporter idag. Lägg till dagens rapport.</p>
+          <Card className="py-5 text-center">
+            <p className="text-sm text-muted">Inga rapporter denna dag.</p>
+            <Button size="sm" className="mt-3" onClick={openNewReport}>
+              Lägg till dagsrapport
+            </Button>
           </Card>
         ) : (
           logs.map((log) => (
-            <Card key={log.id} className="mb-3">
+            <Card key={log.id} className="mb-2.5">
               <p className="font-semibold">
                 {log.driverName ?? "–"} · {log.vehicleName ?? "–"}
               </p>
@@ -105,9 +165,9 @@ export default function FordonPage() {
                 </p>
               )}
               {log.description && (
-                <p className="mt-1 text-sm text-muted">Gjort: {log.description}</p>
+                <p className="mt-1 line-clamp-2 text-sm text-muted">{log.description}</p>
               )}
-              <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="mt-2.5 grid grid-cols-2 gap-2">
                 {log.place && (
                   <ActionChip icon={MapPin} label="Karta" onClick={() => openMaps(log.place!)} />
                 )}
@@ -137,45 +197,57 @@ export default function FordonPage() {
         )}
       </section>
 
-      <Button
-        fullWidth
-        className="mt-5"
-        onClick={() => {
-          setEditingId(null);
-          setShowForm(!showForm);
-        }}
-      >
-        {showForm ? "Dölj formulär" : "Lägg till dagsrapport"}
-      </Button>
-
-      {showForm && (
-        <WorkLogForm
-          date={selectedDate}
-          editId={editingId}
-          onSave={() => {
-            setShowForm(false);
-            setEditingId(null);
-            refresh((n) => n + 1);
-          }}
-        />
-      )}
-
-      <section className="mt-10">
-        <SectionTitle>Fordon ({getActiveVehicles().length})</SectionTitle>
-        <Card className="max-h-52 overflow-auto divide-y divide-border">
-          {getActiveVehicles().map((v) => (
-            <p key={v.id} className="py-2.5 text-sm">{v.name}</p>
-          ))}
+      <section className="mt-6">
+        <SectionTitle>Fordon ({vehicles.length})</SectionTitle>
+        <Card className="divide-y divide-border">
+          {visibleVehicles.length === 0 ? (
+            <p className="py-3 text-sm text-muted">Inga fordon hittades.</p>
+          ) : (
+            visibleVehicles.map((v) => (
+              <div key={v.id} className="flex items-center justify-between py-2.5">
+                <div>
+                  <p className="text-sm font-medium">{v.name}</p>
+                  {v.regNumber && <p className="text-xs text-muted">{v.regNumber}</p>}
+                </div>
+                <span className="text-xs text-muted">{v.type}</span>
+              </div>
+            ))
+          )}
         </Card>
+        {vehicles.length > LIST_LIMIT && (
+          <button
+            type="button"
+            onClick={() => setShowAllVehicles(!showAllVehicles)}
+            className="mt-2 w-full text-center text-sm font-medium text-primary"
+          >
+            {showAllVehicles ? "Visa färre" : `Visa alla fordon (${vehicles.length})`}
+          </button>
+        )}
       </section>
 
-      <section className="mt-6">
-        <SectionTitle>Personal ({getActiveStaff().length})</SectionTitle>
-        <Card className="max-h-52 overflow-auto divide-y divide-border">
-          {getActiveStaff().map((s) => (
-            <p key={s.id} className="py-2.5 text-sm">{s.name}</p>
-          ))}
+      <section className="mt-5">
+        <SectionTitle>Personal ({staff.length})</SectionTitle>
+        <Card className="divide-y divide-border">
+          {visibleStaff.length === 0 ? (
+            <p className="py-3 text-sm text-muted">Ingen personal hittades.</p>
+          ) : (
+            visibleStaff.map((s) => (
+              <div key={s.id} className="py-2.5">
+                <p className="text-sm font-medium">{s.name}</p>
+                {s.role && <p className="text-xs text-muted">{s.role}</p>}
+              </div>
+            ))
+          )}
         </Card>
+        {staff.length > LIST_LIMIT && (
+          <button
+            type="button"
+            onClick={() => setShowAllStaff(!showAllStaff)}
+            className="mt-2 w-full text-center text-sm font-medium text-primary"
+          >
+            {showAllStaff ? "Visa färre" : `Visa all personal (${staff.length})`}
+          </button>
+        )}
       </section>
     </PageContainer>
   );
@@ -195,7 +267,7 @@ function ActionChip({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center justify-center gap-1.5 rounded-xl border border-border px-3 py-2.5 text-sm font-medium transition active:scale-[0.98] ${
+      className={`flex items-center justify-center gap-1.5 rounded-xl border border-border px-3 py-2 text-sm font-medium transition active:scale-[0.98] ${
         danger ? "text-danger" : "text-text"
       }`}
     >
@@ -263,21 +335,16 @@ function WorkLogForm({
   };
 
   return (
-    <Card className="mt-5 space-y-5">
+    <Card className="mt-4 space-y-4 pb-2">
       <p className="text-lg font-semibold">
         {editId ? "Redigera rapport" : "Ny dagsrapport"}
       </p>
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-muted">Datum</label>
-        <input
-          type="date"
-          value={date}
-          disabled
-          className="w-full rounded-2xl border border-border bg-background px-4 py-3.5 text-muted"
-        />
+        <label className="mb-1 block text-sm font-medium text-muted">Datum</label>
+        <input type="date" value={date} disabled className="input-field bg-background text-muted" />
       </div>
       <SearchablePicker
-        label="Vald förare"
+        label="Förare/person"
         icon="person"
         placeholder="Sök förare/person…"
         options={staffSearch("")}
@@ -290,7 +357,7 @@ function WorkLogForm({
         onSearch={staffSearch}
       />
       <SearchablePicker
-        label="Valt fordon"
+        label="Fordon/resurs"
         icon="vehicle"
         placeholder="Sök fordon, regnummer eller maskin…"
         options={vehicleSearch("")}
@@ -303,16 +370,16 @@ function WorkLogForm({
         onSearch={vehicleSearch}
       />
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-muted">Plats/adress</label>
+        <label className="mb-1 block text-sm font-medium text-muted">Plats/adress</label>
         <input
           value={place}
           onChange={(e) => setPlace(e.target.value)}
           placeholder="t.ex. Handelsvägen 9, Luleå"
-          className="w-full rounded-2xl border border-border bg-card px-4 py-3.5 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+          className="input-field"
         />
       </div>
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-muted">Antal timmar</label>
+        <label className="mb-1 block text-sm font-medium text-muted">Antal timmar</label>
         <div className="flex items-center overflow-hidden rounded-2xl border border-border bg-card shadow-card">
           <input
             type="text"
@@ -328,12 +395,12 @@ function WorkLogForm({
         </div>
       </div>
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-muted">Vad har gjorts?</label>
+        <label className="mb-1 block text-sm font-medium text-muted">Vad har gjorts?</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
-          className="w-full rounded-2xl border border-border bg-card px-4 py-3.5 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+          className="input-field resize-none"
         />
       </div>
       <ImageUpload imageIds={imageIds} onChange={setImageIds} />

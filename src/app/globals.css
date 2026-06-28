@@ -25,6 +25,12 @@ button {
   font-size: 16px;
 }
 
+@layer components {
+  .input-field {
+    @apply w-full rounded-2xl border border-border bg-card px-4 py-3.5 text-base shadow-card outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20;
+  }
+}
+
 @layer utilities {
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);

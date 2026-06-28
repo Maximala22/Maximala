@@ -66,8 +66,8 @@ export default function MenyPage() {
 
   return (
     <PageContainer>
-      <div className="flex flex-col items-center pb-4 pt-4 text-center">
-        <BrandLogo size="medium" variant="card" className="mb-5" />
+      <div className="flex flex-col items-center pb-3 pt-3 text-center">
+        <BrandLogo size="large" variant="soft" className="mb-4" />
         <h1 className="text-2xl font-bold tracking-tight text-text">Jobbminne</h1>
         <p className="mt-0.5 font-medium text-flemstromBlue">Flemströms</p>
         <p className="text-sm text-muted">Intern arbetsapp</p>

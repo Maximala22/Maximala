@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import Card from "@/components/Card";
-import Button from "@/components/Button";
+import PageContainer from "@/components/PageContainer";
+import SectionTitle from "@/components/SectionTitle";
 
 export default function MiniraknarePage() {
   const [display, setDisplay] = useState("0");
@@ -61,18 +62,20 @@ export default function MiniraknarePage() {
   };
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-6">
+    <PageContainer>
       <Header
         title="Miniräknare"
-        subtitle="Räkna snabbt på timmar, priser och mått."
+        subtitle="Räkna timmar, priser och mått."
       />
 
-      <Card className="mt-4">
-        <p className="text-right text-4xl font-bold tracking-tight">{display}</p>
-        {op && prev !== null && <p className="text-right text-sm text-muted">{prev} {op}</p>}
+      <Card className="mt-4 py-3">
+        <p className="text-right text-3xl font-bold tracking-tight">{display}</p>
+        {op && prev !== null && (
+          <p className="text-right text-xs text-muted">{prev} {op}</p>
+        )}
       </Card>
 
-      <div className="mt-4 grid grid-cols-4 gap-2">
+      <div className="mt-3 grid grid-cols-4 gap-1.5">
         <CalcBtn label="C" onClick={clear} variant="muted" />
         <CalcBtn label="⌫" onClick={backspace} variant="muted" />
         <CalcBtn label="÷" onClick={() => operate("÷")} variant="op" />
@@ -87,13 +90,14 @@ export default function MiniraknarePage() {
         <CalcBtn label="." onClick={() => input(".")} />
       </div>
 
-      <section className="mt-8 space-y-4">
-        <h2 className="text-xs font-semibold uppercase text-muted">Arbetsräknare</h2>
+      <section className="mt-5 space-y-3">
+        <SectionTitle>Arbetsräknare</SectionTitle>
         <WorkCalc title="Timmar × timpris" fields={["Timmar", "Timpris (kr)"]} calc={(a, b) => `${(a * b).toLocaleString("sv-SE")} kr`} />
         <WorkCalc title="Antal × pris" fields={["Antal", "Pris (kr)"]} calc={(a, b) => `${(a * b).toLocaleString("sv-SE")} kr`} />
-        <WorkCalc title="Längd × bredd = area" fields={["Längd (m)", "Bredd (m)"]} calc={(a, b) => `${(a * b).toLocaleString("sv-SE")} m²`} />
+        <WorkCalc title="Längd × bredd" fields={["Längd (m)", "Bredd (m)"]} calc={(a, b) => `${(a * b).toLocaleString("sv-SE")} m²`} />
+        <WorkCalc title="Area × pris" fields={["Area (m²)", "Pris (kr/m²)"]} calc={(a, b) => `${(a * b).toLocaleString("sv-SE")} kr`} />
       </section>
-    </div>
+    </PageContainer>
   );
 }
 
@@ -107,7 +111,7 @@ function CalcBtn({ label, onClick, variant = "num", className = "" }: { label: s
   return (
     <button
       onClick={onClick}
-      className={`rounded-2xl border py-4 text-xl font-semibold active:scale-95 ${styles[variant]} ${className}`}
+      className={`rounded-xl border py-3 text-lg font-semibold active:scale-95 ${styles[variant]} ${className}`}
     >
       {label}
     </button>
@@ -120,8 +124,8 @@ function WorkCalc({ title, fields, calc }: { title: string; fields: string[]; ca
   const result = a && b ? calc(parseFloat(a.replace(",", ".")), parseFloat(b.replace(",", "."))) : null;
 
   return (
-    <Card>
-      <p className="font-semibold">{title}</p>
+    <Card className="py-3">
+      <p className="text-sm font-semibold">{title}</p>
       <div className="mt-2 grid grid-cols-2 gap-2">
         {fields.map((f, i) => (
           <input
@@ -130,11 +134,11 @@ function WorkCalc({ title, fields, calc }: { title: string; fields: string[]; ca
             value={i === 0 ? a : b}
             onChange={(e) => (i === 0 ? setA : setB)(e.target.value)}
             inputMode="decimal"
-            className="rounded-xl border border-border bg-background px-3 py-2"
+            className="rounded-xl border border-border bg-background px-3 py-2 text-sm"
           />
         ))}
       </div>
-      {result && <p className="mt-2 text-lg font-bold text-primary">{result}</p>}
+      {result && <p className="mt-2 text-base font-bold text-primary">{result}</p>}
     </Card>
   );
 }

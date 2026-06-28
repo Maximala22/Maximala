@@ -29,42 +29,50 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center bg-background px-6 py-12 shadow-[0_0_60px_rgba(36,28,21,0.06)]">
-      <BrandLogo size="large" variant="card" className="mb-10" />
-      <h1 className="text-3xl font-bold tracking-tight text-text">Jobbminne</h1>
-      <p className="mt-1 text-lg font-medium text-flemstromBlue">Flemströms</p>
-      <p className="mb-10 text-sm text-muted">Intern arbetsapp</p>
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center bg-background px-6 py-10">
+      <div className="flex w-full max-w-sm flex-col items-center">
+        <BrandLogo size="hero" variant="soft" className="mb-8" />
 
-      <div className="w-full space-y-5">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-muted">Ditt namn</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="t.ex. Bo"
-            className="w-full rounded-2xl border border-border bg-card px-4 py-4 text-base shadow-card outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-            autoComplete="name"
-          />
+        <h1 className="text-[2rem] font-bold tracking-tight text-text">Jobbminne</h1>
+        <p className="mt-1 text-lg font-semibold text-flemstromBlue">Flemströms</p>
+        <p className="mb-8 text-sm text-muted">Intern arbetsapp</p>
+
+        <div className="w-full space-y-4">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-muted">Ditt namn</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="t.ex. Bo"
+              className="input-field"
+              autoComplete="name"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-muted">PIN</label>
+            <input
+              type="password"
+              inputMode="numeric"
+              value={pin}
+              onChange={(e) => setPinValue(e.target.value)}
+              placeholder="t.ex. 1234"
+              className="input-field"
+            />
+          </div>
+          {error && <p className="text-sm text-danger">{error}</p>}
+          <Button
+            fullWidth
+            size="lg"
+            onClick={handleLogin}
+            className="bg-gradient-to-r from-primary to-primaryDark shadow-warm"
+          >
+            Logga in
+          </Button>
+          <p className="pt-1 text-center text-xs leading-relaxed text-muted">
+            All data sparas lokalt på enheten.
+          </p>
         </div>
-        <div>
-          <label className="mb-2 block text-sm font-medium text-muted">PIN (frivilligt)</label>
-          <input
-            type="password"
-            inputMode="numeric"
-            value={pin}
-            onChange={(e) => setPinValue(e.target.value)}
-            placeholder="t.ex. 1234"
-            className="w-full rounded-2xl border border-border bg-card px-4 py-4 text-base shadow-card outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
-        {error && <p className="text-sm text-danger">{error}</p>}
-        <Button fullWidth size="lg" onClick={handleLogin}>
-          Logga in
-        </Button>
-        <p className="pt-2 text-center text-xs leading-relaxed text-muted">
-          Intern arbetsapp · All data sparas lokalt på enheten.
-        </p>
       </div>
     </div>
   );
