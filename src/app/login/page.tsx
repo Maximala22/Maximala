@@ -31,7 +31,7 @@ export default function LoginPage() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center bg-background px-6 py-10">
       <div className="flex w-full max-w-sm flex-col items-center">
-        <BrandLogo size="hero" variant="soft" className="mb-8" />
+        <BrandLogo size="hero" className="mb-8" />
 
         <h1 className="text-[2rem] font-bold tracking-tight text-text">Jobbminne</h1>
         <p className="mt-1 text-lg font-semibold text-flemstromBlue">Flemströms</p>
