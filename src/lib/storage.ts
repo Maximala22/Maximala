@@ -1,5 +1,5 @@
 import type { Job, JobStatus, TimelineEvent } from "./types";
-import { generateId, isClient, migrateJobStatus } from "./utils";
+import { generateId, isClient, migrateJobStatus, todayISO } from "./utils";
 
 const JOBS_KEY = "jobbminne_jobs";
 const USER_KEY = "jobbminne_user";
@@ -152,8 +152,7 @@ export function getJobsForDate(date: string): Job[] {
 }
 
 export function getTodaysJobs(): Job[] {
-  const today = new Date().toISOString().split("T")[0];
-  return getJobsForDate(today);
+  return getJobsForDate(todayISO());
 }
 
 export function getJobsByStatus(status: JobStatus): Job[] {

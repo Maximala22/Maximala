@@ -27,16 +27,20 @@ import SectionTitle from "@/components/SectionTitle";
 import { clearUser, getArchivedJobs } from "@/lib/storage";
 import { downloadBackup, importBackup, getBackupWarning } from "@/lib/backup";
 
-const toolItems = [
-  { href: "/installera", label: "Installera som app", subtitle: "Lägg Jobbminne på hemskärmen", icon: Smartphone, color: "bg-primary/10 text-primary" },
-  { href: "/kontakter", label: "Snabbkontakter", subtitle: "Ring och maila", icon: UsersRound, color: "bg-emerald-100 text-emerald-700" },
-  { href: "/support", label: "Support & hjälp", subtitle: "Få hjälp", icon: CircleHelp, color: "bg-orange-100 text-primary" },
-  { href: "/ai", label: "Fråga Jobbminne AI", subtitle: "Skriv texter", icon: Sparkles, color: "bg-purple-100 text-purple-700" },
-  { href: "/anteckningar", label: "Anteckningar", subtitle: "Spara noteringar", icon: StickyNote, color: "bg-amber-100 text-amber-700" },
-  { href: "/miniraknare", label: "Miniräknare", subtitle: "Timmar & mått", icon: Calculator, color: "bg-cyan-100 text-cyan-700" },
-  { href: "/fordon", label: "Fordon & personal", subtitle: "Dagsrapporter", icon: Truck, color: "bg-blue-100 text-flemstromBlue" },
-  { href: "/status", label: "Att kolla", subtitle: "Se vad som saknas", icon: CheckCircle2, color: "bg-green-100 text-green-700" },
-  { href: "/kalender", label: "Kalender", subtitle: "Jobb per dag", icon: Calendar, color: "bg-sky-100 text-sky-700" },
+const viktigtItems = [
+  { href: "/installera", label: "Installera som app", subtitle: "Lägg på hemskärmen", icon: Smartphone, color: "bg-primaryLight text-primary" },
+  { href: "/meny", label: "Exportera backup", subtitle: "Spara en kopia", icon: Download, color: "bg-flemstromBlueLight text-flemstromBlue", action: "export" as const },
+  { href: "/kontakter", label: "Snabbkontakter", subtitle: "Ring och maila", icon: UsersRound, color: "bg-successLight text-success" },
+];
+
+const verktygItems = [
+  { href: "/support", label: "Support & hjälp", subtitle: "Få hjälp", icon: CircleHelp, color: "bg-primaryLight text-primary" },
+  { href: "/ai", label: "Fråga Jobbminne AI", subtitle: "Skriv texter", icon: Sparkles, color: "bg-aiPurpleLight text-aiPurple" },
+  { href: "/anteckningar", label: "Anteckningar", subtitle: "Spara noteringar", icon: StickyNote, color: "bg-primaryLight text-primaryDark" },
+  { href: "/miniraknare", label: "Miniräknare", subtitle: "Timmar & mått", icon: Calculator, color: "bg-utilityCyanLight text-utilityCyan" },
+  { href: "/fordon", label: "Fordon & personal", subtitle: "Dagsrapporter", icon: Truck, color: "bg-flemstromBlueLight text-flemstromBlue" },
+  { href: "/status", label: "Att kolla", subtitle: "Se vad som saknas", icon: CheckCircle2, color: "bg-successLight text-success" },
+  { href: "/kalender", label: "Kalender", subtitle: "Jobb per dag", icon: Calendar, color: "bg-flemstromBlueLight text-flemstromBlueDark" },
 ];
 
 export default function MenyPage() {
@@ -66,44 +70,49 @@ export default function MenyPage() {
 
   return (
     <PageContainer>
-      <div className="flex flex-col items-center pb-3 pt-3 text-center">
+      <div className="flex flex-col items-center pb-3 pt-2 text-center">
         <BrandLogo size="large" className="mb-4" />
-        <h1 className="text-2xl font-bold tracking-tight text-text">Jobbminne</h1>
-        <p className="mt-0.5 font-medium text-flemstromBlue">Flemströms</p>
+        <h1 className="text-2xl font-extrabold tracking-tight text-text">Jobbminne</h1>
+        <p className="mt-0.5 font-semibold text-flemstromBlue">Flemströms</p>
         <p className="text-sm text-muted">Intern arbetsapp</p>
       </div>
 
       {backupWarning && (
-        <Card className="mt-5 border-amber-200/80 bg-amber-50">
-          <p className="text-sm text-amber-900">{backupWarning}</p>
+        <Card className="mt-4 border-warning/30 bg-warning/10">
+          <p className="text-sm text-text">{backupWarning}</p>
         </Card>
       )}
 
-      <Card className="mt-4 border-border/80 bg-background/60">
-        <p className="text-sm leading-relaxed text-muted">
-          Jobb och bilder sparas lokalt på den här enheten. Exportera backup regelbundet.
-        </p>
-      </Card>
+      <section className="mt-6">
+        <SectionTitle>Viktigt</SectionTitle>
+        <div className="space-y-2">
+          {viktigtItems.map((item) =>
+            item.action === "export" ? (
+              <button key={item.label} type="button" onClick={downloadBackup} className="w-full">
+                <MenuRow {...item} href={item.href} />
+              </button>
+            ) : (
+              <MenuRow key={item.href} {...item} />
+            )
+          )}
+        </div>
+      </section>
 
-      <section className="mt-8">
+      <section className="mt-6">
         <SectionTitle>Verktyg</SectionTitle>
         <div className="space-y-2">
-          {toolItems.map((item) => (
+          {verktygItems.map((item) => (
             <MenuRow key={item.href} {...item} />
           ))}
         </div>
       </section>
 
-      <section className="mt-8">
+      <section className="mt-6">
         <SectionTitle>Data</SectionTitle>
         <div className="space-y-2">
-          <button
-            type="button"
-            onClick={() => setShowArchived(!showArchived)}
-            className="w-full"
-          >
-            <Card interactive className="flex items-center gap-3 py-3.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-600">
+          <button type="button" onClick={() => setShowArchived(!showArchived)} className="w-full">
+            <Card interactive className="flex items-center gap-3 py-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-background text-muted">
                 <Archive className="h-5 w-5" />
               </div>
               <div className="flex-1 text-left">
@@ -130,21 +139,9 @@ export default function MenyPage() {
               )}
             </Card>
           )}
-          <button type="button" onClick={downloadBackup} className="w-full">
-            <Card interactive className="flex items-center gap-3 py-3.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-flemstromBlue">
-                <Download className="h-5 w-5" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="font-semibold">Exportera backup</p>
-                <p className="text-sm text-muted">Spara en kopia</p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted" />
-            </Card>
-          </button>
           <button type="button" onClick={() => fileRef.current?.click()} className="w-full">
-            <Card interactive className="flex items-center gap-3 py-3.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
+            <Card interactive className="flex items-center gap-3 py-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-flemstromBlueLight text-flemstromBlue">
                 <Upload className="h-5 w-5" />
               </div>
               <div className="flex-1 text-left">
@@ -161,7 +158,7 @@ export default function MenyPage() {
         </div>
       </section>
 
-      <section className="mt-8">
+      <section className="mt-6">
         <SectionTitle>Konto</SectionTitle>
         <Button
           fullWidth
@@ -193,18 +190,20 @@ function MenuRow({
   icon: React.ComponentType<{ className?: string }>;
   color: string;
 }) {
-  return (
-    <Link href={href}>
-      <Card interactive className="flex items-center gap-3 py-3.5">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${color}`}>
-          <Icon className="h-5 w-5" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="font-semibold">{label}</p>
-          <p className="text-sm text-muted">{subtitle}</p>
-        </div>
-        <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
-      </Card>
-    </Link>
+  const inner = (
+    <Card interactive className="flex items-center gap-3 py-3">
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${color}`}>
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1 text-left">
+        <p className="font-semibold">{label}</p>
+        <p className="text-sm text-muted">{subtitle}</p>
+      </div>
+      <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
+    </Card>
   );
+
+  if (href === "/meny") return inner;
+
+  return <Link href={href}>{inner}</Link>;
 }

@@ -79,7 +79,7 @@ function ContactCard({
         {c.phone ? (
           <p className="text-sm">{c.phone}</p>
         ) : (
-          <p className="text-xs text-muted/70">Telefonnummer saknas</p>
+          <p className="text-xs text-muted/70">Telefon saknas</p>
         )}
       </div>
       <div className="mt-2.5 grid grid-cols-2 gap-1.5">

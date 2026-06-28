@@ -3,14 +3,22 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const LOGO_VERSION = "1";
+const LOGO_VERSION = "2";
 const LOGO_SOURCES = [
   `/flemstrom-logo.png?v=${LOGO_VERSION}`,
   `/flemstrom-logo-transparent.png?v=${LOGO_VERSION}`,
   "/flemstrom-logo.svg",
 ];
 
-type BrandLogoSize = "small" | "medium" | "large" | "hero" | "sm" | "md" | "lg";
+type BrandLogoSize =
+  | "small"
+  | "medium"
+  | "large"
+  | "hero"
+  | "login"
+  | "sm"
+  | "md"
+  | "lg";
 
 type BrandLogoProps = {
   size?: BrandLogoSize;
@@ -19,14 +27,21 @@ type BrandLogoProps = {
 };
 
 /** Horizontal logo — width-led sizing */
-const sizeClasses: Record<"small" | "medium" | "large" | "hero", string> = {
+const sizeClasses: Record<
+  "small" | "medium" | "large" | "hero" | "login",
+  string
+> = {
   small: "h-8 w-auto max-w-[120px]",
   medium: "h-12 w-auto max-w-[180px]",
   large: "h-16 w-auto max-w-[240px]",
   hero: "h-[72px] w-auto max-w-[300px]",
+  login: "h-[88px] w-full max-w-[340px]",
 };
 
-function normalizeSize(size: BrandLogoSize): "small" | "medium" | "large" | "hero" {
+function normalizeSize(
+  size: BrandLogoSize
+): "small" | "medium" | "large" | "hero" | "login" {
+  if (size === "login") return "login";
   if (size === "sm" || size === "small") return "small";
   if (size === "lg" || size === "large") return "large";
   if (size === "hero") return "hero";
@@ -37,13 +52,14 @@ function FallbackText({
   normalized,
   className,
 }: {
-  normalized: "small" | "medium" | "large" | "hero";
+  normalized: "small" | "medium" | "large" | "hero" | "login";
   className?: string;
 }) {
   return (
     <div
       className={cn(
         "font-extrabold uppercase tracking-[0.18em] text-flemstromBlue",
+        normalized === "login" && "text-3xl",
         normalized === "hero" && "text-3xl",
         normalized === "large" && "text-2xl",
         normalized === "medium" && "text-xl",
@@ -92,7 +108,7 @@ export default function BrandLogo({
     return (
       <div
         className={cn(
-          "inline-flex items-center justify-center rounded-[1.5rem] px-4 py-3",
+          "inline-flex w-full items-center justify-center rounded-[1.5rem] px-4 py-3",
           className
         )}
       >
@@ -102,7 +118,13 @@ export default function BrandLogo({
   }
 
   return (
-    <div className={cn("inline-flex items-center justify-center", className)}>
+    <div
+      className={cn(
+        "inline-flex items-center justify-center",
+        normalized === "login" && "w-full",
+        className
+      )}
+    >
       {image}
     </div>
   );

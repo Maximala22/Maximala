@@ -16,15 +16,15 @@ export default function AIStatusCard({ compact }: { compact?: boolean }) {
         "flex flex-col justify-between rounded-[1.15rem] p-3.5 shadow-card transition active:scale-[0.98]",
         compact ? "min-h-[110px]" : "min-h-[140px]",
         summary.allGood
-          ? "bg-gradient-to-br from-emerald-50 to-green-50"
-          : "bg-gradient-to-br from-amber-50 to-orange-50"
+          ? "bg-gradient-to-br from-successLight to-emerald-50"
+          : "bg-gradient-to-br from-orange-50 to-amber-50"
       )}
     >
       <div className="flex items-start justify-between">
         {summary.allGood ? (
-          <CheckCircle2 className="h-5 w-5 text-emerald-600" strokeWidth={2} />
+          <CheckCircle2 className="h-5 w-5 text-success" strokeWidth={2} />
         ) : (
-          <AlertCircle className="h-5 w-5 text-amber-600" strokeWidth={2} />
+          <AlertCircle className="h-5 w-5 text-warning" strokeWidth={2} />
         )}
       </div>
       <div className="mt-auto">
@@ -32,7 +32,7 @@ export default function AIStatusCard({ compact }: { compact?: boolean }) {
           className={cn(
             "font-semibold leading-snug",
             compact ? "text-[15px]" : "text-base",
-            summary.allGood ? "text-emerald-800" : "text-amber-900"
+            summary.allGood ? "text-success" : "text-amber-900"
           )}
         >
           {summary.allGood ? "Allt ser bra ut" : summary.summaryText}

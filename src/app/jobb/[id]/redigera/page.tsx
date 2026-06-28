@@ -4,6 +4,7 @@ import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Button from "@/components/Button";
+import PageContainer from "@/components/PageContainer";
 import ImageUpload from "@/components/ImageUpload";
 import { getJob, updateJob } from "@/lib/storage";
 import { JOB_STATUSES, type JobStatus } from "@/lib/types";
@@ -47,7 +48,7 @@ export default function RedigeraJobbPage({ params }: { params: Promise<{ id: str
   };
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-6">
+    <PageContainer>
       <Header title="Redigera jobb" backHref={`/jobb/${id}`} />
       <div className="mt-4 space-y-4">
         <Field label="Titel" value={title} onChange={setTitle} />
@@ -68,7 +69,7 @@ export default function RedigeraJobbPage({ params }: { params: Promise<{ id: str
         <ImageUpload imageIds={imageIds} onChange={setImageIds} />
         <Button fullWidth size="lg" onClick={handleSave}>Spara ändringar</Button>
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

@@ -19,8 +19,9 @@ import {
   searchVehicles,
   getActiveVehicles,
   getActiveStaff,
+  resetFleetDefaults,
 } from "@/lib/fleetStorage";
-import { formatHours, openMaps, todayISO } from "@/lib/utils";
+import { formatHours, openMaps, todayISO, addDaysISO, isoToLocalDate } from "@/lib/utils";
 import { printWorkLog } from "@/lib/print";
 
 const LIST_LIMIT = 6;
@@ -32,11 +33,14 @@ export default function FordonPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAllVehicles, setShowAllVehicles] = useState(false);
   const [showAllStaff, setShowAllStaff] = useState(false);
+  const [savedToast, setSavedToast] = useState(false);
   const [, refresh] = useState(0);
 
   const logs = getWorkLogsForDate(selectedDate);
   const totalHours = getTotalHoursForDate(selectedDate);
   const isToday = selectedDate === todayISO();
+  const vehicleCount = getActiveVehicles().length;
+  const staffCount = getActiveStaff().length;
 
   const vehicles = getActiveVehicles().filter(
     (v) =>
@@ -55,9 +59,7 @@ export default function FordonPage() {
   const visibleStaff = showAllStaff ? staff : staff.slice(0, LIST_LIMIT);
 
   const shiftDate = (days: number) => {
-    const d = new Date(selectedDate);
-    d.setDate(d.getDate() + days);
-    setSelectedDate(d.toISOString().split("T")[0]);
+    setSelectedDate(addDaysISO(selectedDate, days));
   };
 
   const openNewReport = () => {
@@ -87,11 +89,12 @@ export default function FordonPage() {
             {isToday ? "Idag" : "Gå till idag"}
           </button>
           <p className="mt-1 text-xs text-muted">
-            {new Date(selectedDate).toLocaleDateString("sv-SE", {
+            {new Date(isoToLocalDate(selectedDate)).toLocaleDateString("sv-SE", {
               weekday: "short",
               day: "numeric",
               month: "short",
             })}
+            {!isToday && " · annan dag"}
           </p>
         </div>
         <button
@@ -107,6 +110,12 @@ export default function FordonPage() {
         <p className="text-lg font-bold text-primary">{formatHours(totalHours)} h</p>
       </Card>
 
+      {savedToast && (
+        <div className="fixed bottom-[calc(120px+env(safe-area-inset-bottom))] left-1/2 z-50 -translate-x-1/2 rounded-full bg-success px-5 py-2.5 text-sm font-semibold text-white shadow-lift">
+          Rapport sparad
+        </div>
+      )}
+
       <Button fullWidth className="mt-4" onClick={() => (showForm ? setShowForm(false) : openNewReport())}>
         {showForm ? "Stäng formulär" : "+ Lägg till dagsrapport"}
       </Button>
@@ -119,6 +128,8 @@ export default function FordonPage() {
             setShowForm(false);
             setEditingId(null);
             refresh((n) => n + 1);
+            setSavedToast(true);
+            setTimeout(() => setSavedToast(false), 2000);
           }}
         />
       )}
@@ -198,55 +209,93 @@ export default function FordonPage() {
       </section>
 
       <section className="mt-6">
-        <SectionTitle>Fordon ({vehicles.length})</SectionTitle>
-        <Card className="divide-y divide-border">
-          {visibleVehicles.length === 0 ? (
-            <p className="py-3 text-sm text-muted">Inga fordon hittades.</p>
-          ) : (
-            visibleVehicles.map((v) => (
-              <div key={v.id} className="flex items-center justify-between py-2.5">
-                <div>
-                  <p className="text-sm font-medium">{v.name}</p>
-                  {v.regNumber && <p className="text-xs text-muted">{v.regNumber}</p>}
-                </div>
-                <span className="text-xs text-muted">{v.type}</span>
-              </div>
-            ))
-          )}
-        </Card>
-        {vehicles.length > LIST_LIMIT && (
-          <button
-            type="button"
-            onClick={() => setShowAllVehicles(!showAllVehicles)}
-            className="mt-2 w-full text-center text-sm font-medium text-primary"
-          >
-            {showAllVehicles ? "Visa färre" : `Visa alla fordon (${vehicles.length})`}
-          </button>
+        <SectionTitle>Fordon ({vehicleCount})</SectionTitle>
+        {vehicleCount === 0 ? (
+          <Card className="py-5 text-center">
+            <p className="font-semibold">Fordon saknas</p>
+            <p className="mt-1 text-sm text-muted">Återställ standardfordon från Flemströms.</p>
+            <Button
+              size="sm"
+              className="mt-4"
+              onClick={() => {
+                resetFleetDefaults();
+                refresh((n) => n + 1);
+              }}
+            >
+              Återställ standarddata
+            </Button>
+          </Card>
+        ) : (
+          <>
+            <Card className="divide-y divide-border">
+              {visibleVehicles.length === 0 ? (
+                <p className="py-3 text-sm text-muted">Inga fordon hittades.</p>
+              ) : (
+                visibleVehicles.map((v) => (
+                  <div key={v.id} className="flex items-center justify-between py-2.5">
+                    <div>
+                      <p className="text-sm font-medium">{v.name}</p>
+                      {v.regNumber && <p className="text-xs text-muted">{v.regNumber}</p>}
+                    </div>
+                    <span className="text-xs text-muted">{v.type}</span>
+                  </div>
+                ))
+              )}
+            </Card>
+            {vehicles.length > LIST_LIMIT && (
+              <button
+                type="button"
+                onClick={() => setShowAllVehicles(!showAllVehicles)}
+                className="mt-2 w-full text-center text-sm font-medium text-primary"
+              >
+                {showAllVehicles ? "Visa färre" : `Visa alla fordon (${vehicles.length})`}
+              </button>
+            )}
+          </>
         )}
       </section>
 
       <section className="mt-5">
-        <SectionTitle>Personal ({staff.length})</SectionTitle>
-        <Card className="divide-y divide-border">
-          {visibleStaff.length === 0 ? (
-            <p className="py-3 text-sm text-muted">Ingen personal hittades.</p>
-          ) : (
-            visibleStaff.map((s) => (
-              <div key={s.id} className="py-2.5">
-                <p className="text-sm font-medium">{s.name}</p>
-                {s.role && <p className="text-xs text-muted">{s.role}</p>}
-              </div>
-            ))
-          )}
-        </Card>
-        {staff.length > LIST_LIMIT && (
-          <button
-            type="button"
-            onClick={() => setShowAllStaff(!showAllStaff)}
-            className="mt-2 w-full text-center text-sm font-medium text-primary"
-          >
-            {showAllStaff ? "Visa färre" : `Visa all personal (${staff.length})`}
-          </button>
+        <SectionTitle>Personal ({staffCount})</SectionTitle>
+        {staffCount === 0 ? (
+          <Card className="py-5 text-center">
+            <p className="font-semibold">Personal saknas</p>
+            <p className="mt-1 text-sm text-muted">Återställ standardpersonal från Flemströms.</p>
+            <Button
+              size="sm"
+              className="mt-4"
+              onClick={() => {
+                resetFleetDefaults();
+                refresh((n) => n + 1);
+              }}
+            >
+              Återställ standarddata
+            </Button>
+          </Card>
+        ) : (
+          <>
+            <Card className="divide-y divide-border">
+              {visibleStaff.length === 0 ? (
+                <p className="py-3 text-sm text-muted">Ingen personal hittades.</p>
+              ) : (
+                visibleStaff.map((s) => (
+                  <div key={s.id} className="py-2.5">
+                    <p className="text-sm font-medium">{s.name}</p>
+                    {s.role && <p className="text-xs text-muted">{s.role}</p>}
+                  </div>
+                ))
+              )}
+            </Card>
+            {staff.length > LIST_LIMIT && (
+              <button
+                type="button"
+                onClick={() => setShowAllStaff(!showAllStaff)}
+                className="mt-2 w-full text-center text-sm font-medium text-primary"
+              >
+                {showAllStaff ? "Visa färre" : `Visa all personal (${staff.length})`}
+              </button>
+            )}
+          </>
         )}
       </section>
     </PageContainer>

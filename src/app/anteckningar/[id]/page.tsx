@@ -4,6 +4,7 @@ import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Button from "@/components/Button";
+import PageContainer from "@/components/PageContainer";
 import ImageUpload from "@/components/ImageUpload";
 import { getNote, updateNote, archiveNote } from "@/lib/notesStorage";
 import { printNote } from "@/lib/print";
@@ -31,7 +32,7 @@ export default function AnteckningDetailPage({ params }: { params: Promise<{ id:
   };
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-6">
+    <PageContainer>
       <Header title="Anteckning" backHref="/anteckningar" />
       <div className="mt-4 space-y-4">
         <div>
@@ -56,6 +57,6 @@ export default function AnteckningDetailPage({ params }: { params: Promise<{ id:
           }
         }}>Arkivera</Button>
       </div>
-    </div>
+    </PageContainer>
   );
 }

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
+import PageContainer from "@/components/PageContainer";
 import StatusPill from "@/components/StatusPill";
 import { getJob, archiveJob, duplicateJob } from "@/lib/storage";
 import {
@@ -51,7 +52,7 @@ export default function JobbDetailPage({ params }: { params: Promise<{ id: strin
   const hasPhone = !!job.customerPhone?.trim();
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-6">
+    <PageContainer>
       <Header title={job.title} backHref="/jobb" />
       <div className="mt-2"><StatusPill status={job.status} /></div>
 
@@ -142,7 +143,7 @@ export default function JobbDetailPage({ params }: { params: Promise<{ id: strin
           ))}
         </Card>
       )}
-    </div>
+    </PageContainer>
   );
 }
 

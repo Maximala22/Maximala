@@ -4,26 +4,75 @@ import { getActiveStaff } from "./fleetStorage";
 
 const CONTACTS_KEY = "jobbminne_contacts";
 
+const FAVORITE_NAMES = ["bo flemström", "flemströms", "elliot"];
+
 const defaultContacts: Omit<QuickContact, "id">[] = [
+  {
+    name: "Bo Flemström",
+    role: "VD",
+    company: "Flemströms",
+    phone: "",
+    email: "",
+    tags: ["favorit"],
+    favorite: true,
+  },
+  {
+    name: "Flemströms",
+    role: "Kontor",
+    company: "Flemströms",
+    phone: "0920-24 05 00",
+    email: "info@flemstroms.se",
+    tags: ["favorit"],
+    favorite: true,
+  },
   {
     name: "Elliot",
     role: "Support",
-    company: "Jobbminne",
+    company: "Flemströms",
     phone: "",
     email: "flemstromelliot@gmail.com",
-    tags: ["support"],
+    tags: ["support", "favorit"],
     favorite: true,
   },
 ];
 
+export function seedContacts(): void {
+  if (!isClient()) return;
+
+  let existing: QuickContact[] = [];
+  try {
+    const raw = localStorage.getItem(CONTACTS_KEY);
+    if (raw) existing = JSON.parse(raw);
+  } catch {
+    existing = [];
+  }
+
+  if (existing.length === 0) {
+    const seeded = defaultContacts.map((c) => ({ ...c, id: generateId() }));
+    localStorage.setItem(CONTACTS_KEY, JSON.stringify(seeded));
+    return;
+  }
+
+  const names = new Set(existing.map((c) => c.name.toLowerCase().trim()));
+  let changed = false;
+  for (const d of defaultContacts) {
+    if (!names.has(d.name.toLowerCase().trim())) {
+      existing.push({ ...d, id: generateId() });
+      changed = true;
+    }
+  }
+  if (changed) {
+    localStorage.setItem(CONTACTS_KEY, JSON.stringify(existing));
+  }
+}
+
 export function getManualContacts(): QuickContact[] {
   if (!isClient()) return [];
+  seedContacts();
   try {
     const raw = localStorage.getItem(CONTACTS_KEY);
     if (raw) return JSON.parse(raw);
-    const seeded = defaultContacts.map((c) => ({ ...c, id: generateId() }));
-    localStorage.setItem(CONTACTS_KEY, JSON.stringify(seeded));
-    return seeded;
+    return [];
   } catch {
     return [];
   }
@@ -50,6 +99,11 @@ export function updateContact(id: string, updates: Partial<QuickContact>): void 
   }
 }
 
+function isFavoriteName(name: string): boolean {
+  const lower = name.toLowerCase().trim();
+  return FAVORITE_NAMES.some((f) => lower.includes(f) || f.includes(lower));
+}
+
 export function getAllContacts(): QuickContact[] {
   const manual = getManualContacts();
   const staff = getActiveStaff();
@@ -61,7 +115,7 @@ export function getAllContacts(): QuickContact[] {
     company: "Flemströms",
     phone: s.phone,
     tags: ["personal"],
-    favorite: false,
+    favorite: isFavoriteName(s.name),
   }));
 
   const seen = new Set<string>();

@@ -4,13 +4,36 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
+const STOCKHOLM_TZ = "Europe/Stockholm";
+
 export function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+/** Today's date as YYYY-MM-DD in Swedish timezone */
+export function todayISO(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: STOCKHOLM_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+/** Add days to an ISO date string, returns YYYY-MM-DD */
+export function addDaysISO(isoDate: string, days: number): string {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  const date = new Date(y, m - 1, d + days);
+  const yy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
+}
+
 export function formatDate(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
+  const d = typeof date === "string" ? new Date(isoToLocalDate(date)) : date;
   return d.toLocaleDateString("sv-SE", {
+    timeZone: STOCKHOLM_TZ,
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -18,19 +41,35 @@ export function formatDate(date: Date | string): string {
 }
 
 export function formatShortDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
+  return new Date(isoToLocalDate(dateStr)).toLocaleDateString("sv-SE", {
+    timeZone: STOCKHOLM_TZ,
+    day: "numeric",
+    month: "short",
+  });
+}
+
+/** Parse YYYY-MM-DD as local calendar date (avoid UTC shift) */
+export function isoToLocalDate(iso: string): Date {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 
 export function formatTime(date: Date = new Date()): string {
   return date.toLocaleTimeString("sv-SE", {
+    timeZone: STOCKHOLM_TZ,
     hour: "2-digit",
     minute: "2-digit",
   });
 }
 
 export function getGreeting(): string {
-  const hour = new Date().getHours();
+  const hour = Number(
+    new Intl.DateTimeFormat("sv-SE", {
+      timeZone: STOCKHOLM_TZ,
+      hour: "numeric",
+      hour12: false,
+    }).format(new Date())
+  );
   if (hour < 5) return "God natt";
   if (hour < 10) return "God morgon";
   if (hour < 18) return "God dag";
@@ -46,10 +85,6 @@ export function capitalizeFirst(str: string): string {
 export function formatHours(hours?: number): string {
   if (hours === undefined || hours === null) return "–";
   return hours.toLocaleString("sv-SE", { maximumFractionDigits: 1 });
-}
-
-export function todayISO(): string {
-  return new Date().toISOString().split("T")[0];
 }
 
 export function isClient(): boolean {

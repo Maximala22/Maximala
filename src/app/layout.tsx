@@ -1,6 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import AppShell from "@/components/AppShell";
+
+const manrope = Manrope({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Jobbminne",
@@ -27,13 +35,13 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#C0612A",
+  themeColor: "#C8612A",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="sv">
-      <body>
+    <html lang="sv" className={manrope.variable}>
+      <body className="font-sans">
         <AppShell>{children}</AppShell>
       </body>
     </html>

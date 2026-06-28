@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { getUserName } from "@/lib/storage";
 import { seedFleetData } from "@/lib/fleetStorage";
+import { seedContacts } from "@/lib/contacts";
 import BottomNav from "./BottomNav";
 
 const PUBLIC_PATHS = ["/login"];
@@ -14,6 +15,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     seedFleetData();
+    seedContacts();
     const user = getUserName();
     if (!user && !PUBLIC_PATHS.includes(pathname)) {
       router.replace("/login");

@@ -1,10 +1,9 @@
 import type { StaffMember, Vehicle, VehicleType, WorkLog } from "./types";
-import { generateId, isClient } from "./utils";
+import { generateId, isClient, todayISO } from "./utils";
 
 const VEHICLES_KEY = "jobbminne_vehicles";
 const STAFF_KEY = "jobbminne_staff";
 const WORKLOGS_KEY = "jobbminne_worklogs";
-const SEEDED_KEY = "jobbminne_fleet_seeded";
 
 export const defaultVehicles: Omit<Vehicle, "id" | "active" | "createdAt" | "updatedAt">[] = [
   { name: "42201 - Volvo EC 250 EL", type: "Grävmaskin" },
@@ -62,12 +61,8 @@ function writeJson<T>(key: string, data: T[]): void {
 
 export function seedFleetData(): void {
   if (!isClient()) return;
-  if (localStorage.getItem(SEEDED_KEY)) return;
 
-  const vehicles = getVehicles();
-  const staff = getStaff();
-
-  if (vehicles.length === 0) {
+  if (getVehicles().length === 0) {
     const now = new Date().toISOString();
     const seeded = defaultVehicles.map((v) => ({
       ...v,
@@ -79,7 +74,7 @@ export function seedFleetData(): void {
     writeJson(VEHICLES_KEY, seeded);
   }
 
-  if (staff.length === 0) {
+  if (getStaff().length === 0) {
     const now = new Date().toISOString();
     const seeded = defaultStaff.map((s) => ({
       ...s,
@@ -90,8 +85,14 @@ export function seedFleetData(): void {
     }));
     writeJson(STAFF_KEY, seeded);
   }
+}
 
-  localStorage.setItem(SEEDED_KEY, "1");
+/** Force-restore default vehicles and staff (does not touch work logs) */
+export function resetFleetDefaults(): void {
+  if (!isClient()) return;
+  localStorage.removeItem(VEHICLES_KEY);
+  localStorage.removeItem(STAFF_KEY);
+  seedFleetData();
 }
 
 export function getVehicles(): Vehicle[] {
@@ -221,8 +222,7 @@ export function getWorkLogsForDate(date: string): WorkLog[] {
 }
 
 export function getTodaysWorkLogs(): WorkLog[] {
-  const today = new Date().toISOString().split("T")[0];
-  return getWorkLogsForDate(today);
+  return getWorkLogsForDate(todayISO());
 }
 
 export function getTotalHoursForDate(date: string): number {

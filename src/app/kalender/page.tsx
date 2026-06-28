@@ -10,17 +10,16 @@ import StatusPill from "@/components/StatusPill";
 import PageContainer from "@/components/PageContainer";
 import SectionTitle from "@/components/SectionTitle";
 import { getActiveJobs, getJobsForDate } from "@/lib/storage";
-import { getWorkLogsForDate } from "@/lib/fleetStorage";
+import { getWorkLogsForDate, getTotalHoursForDate } from "@/lib/fleetStorage";
 import { createJobsIcs, downloadIcsFile, getDaysInMonth, getFirstDayOfMonth } from "@/lib/calendar";
-import { capitalizeFirst } from "@/lib/utils";
+import { capitalizeFirst, todayISO, isoToLocalDate } from "@/lib/utils";
 
 const WEEKDAYS = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
 
 export default function KalenderPage() {
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth());
-  const [selectedDate, setSelectedDate] = useState(now.toISOString().split("T")[0]);
+  const [year, setYear] = useState(() => isoToLocalDate(todayISO()).getFullYear());
+  const [month, setMonth] = useState(() => isoToLocalDate(todayISO()).getMonth());
+  const [selectedDate, setSelectedDate] = useState(todayISO());
 
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
@@ -29,6 +28,7 @@ export default function KalenderPage() {
   const jobsOnDate = (dateStr: string) => allJobs.filter((j) => j.date === dateStr);
   const selectedJobs = getJobsForDate(selectedDate);
   const selectedLogs = getWorkLogsForDate(selectedDate);
+  const dayHours = getTotalHoursForDate(selectedDate);
 
   const prevMonth = () => {
     if (month === 0) { setMonth(11); setYear(year - 1); }
@@ -51,10 +51,10 @@ export default function KalenderPage() {
   const dateStr = (day: number) =>
     `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
-  const todayStr = now.toISOString().split("T")[0];
+  const todayStr = todayISO();
 
   const dayLabel = capitalizeFirst(
-    new Date(selectedDate).toLocaleDateString("sv-SE", {
+    isoToLocalDate(selectedDate).toLocaleDateString("sv-SE", {
       weekday: "long",
       day: "numeric",
       month: "long",
@@ -121,6 +121,13 @@ export default function KalenderPage() {
 
       <section className="mt-5">
         <SectionTitle>{dayLabel}</SectionTitle>
+
+        {(selectedJobs.length > 0 || selectedLogs.length > 0) && (
+          <p className="mb-3 text-sm text-muted">
+            {selectedJobs.length} jobb · {selectedLogs.length} rapport
+            {selectedLogs.length !== 1 ? "er" : ""} · {dayHours} h
+          </p>
+        )}
 
         {selectedJobs.length === 0 && selectedLogs.length === 0 ? (
           <Card className="flex flex-col items-center py-6 text-center">

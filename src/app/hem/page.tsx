@@ -60,32 +60,32 @@ export default function HemPage() {
         {userName || "Välkommen"}
       </h1>
 
-      <div className="my-5 text-center">
-        <p className="text-[2.5rem] font-bold leading-none tracking-tight">{time}</p>
-        <p className="mt-1.5 text-sm text-muted">
+      <div className="my-4 text-center">
+        <p className="text-[2rem] font-extrabold leading-none tracking-tight">{time}</p>
+        <p className="mt-1 text-sm text-muted">
           {capitalizeFirst(formatDate(new Date()))}
         </p>
       </div>
 
-      <div className="mb-5 grid grid-cols-2 gap-2.5">
+      <div className="mb-4 grid grid-cols-2 gap-2.5">
         <PrimaryAction
           href="/jobb/ny"
           label="Skapa jobb"
           icon={Plus}
-          gradient="from-primary to-primaryDark"
+          className="bg-gradient-to-br from-primary to-primaryDark"
         />
         <AIStatusCard compact />
         <PrimaryAction
           href="/fordon"
           label="Lägg rapport"
           icon={ClipboardList}
-          gradient="from-sky-600 to-blue-500"
+          className="bg-gradient-to-br from-primaryDark to-[#8B4018]"
         />
         <PrimaryAction
           href="/anteckningar"
           label="Ny anteckning"
           icon={StickyNote}
-          gradient="from-amber-600 to-orange-500"
+          className="bg-gradient-to-br from-primary to-primaryDark"
         />
       </div>
 
@@ -175,7 +175,7 @@ export default function HemPage() {
 
         <Link
           href="/kontakter"
-          className="mb-3 flex items-center gap-3 rounded-[1.25rem] bg-gradient-to-r from-emerald-600 via-green-600 to-green-500 p-4 text-white shadow-lift transition active:scale-[0.98]"
+          className="mb-3 flex items-center gap-3 rounded-[1.25rem] bg-gradient-to-r from-success to-[#128A52] p-4 text-white shadow-lift transition active:scale-[0.98]"
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20">
             <UsersRound className="h-6 w-6" strokeWidth={2} />
@@ -192,28 +192,28 @@ export default function HemPage() {
             title="Outlook"
             subtitle="Öppna mail"
             icon={Mail}
-            gradient="from-blue-600 to-blue-500"
+            className="bg-gradient-to-br from-flemstromBlue to-flemstromBlueDark"
             onClick={openOutlook}
           />
           <QuickCard
             title="Fråga AI"
             subtitle="Skriv mejl & SMS"
             icon={Sparkles}
-            gradient="from-violet-600 to-purple-500"
+            className="bg-gradient-to-br from-aiPurple to-[#6D28D9]"
             href="/ai"
           />
           <QuickCard
             title="Räknare"
             subtitle="Timmar & mått"
             icon={Calculator}
-            gradient="from-cyan-600 to-teal-500"
+            className="bg-gradient-to-br from-utilityCyan to-[#0D8A8C]"
             href="/miniraknare"
           />
           <QuickCard
             title="Support"
             subtitle="Få hjälp"
             icon={CircleHelp}
-            gradient="from-primary to-primaryDark"
+            className="bg-gradient-to-br from-primary to-primaryDark"
             href="/support"
           />
         </div>
@@ -230,17 +230,17 @@ function PrimaryAction({
   href,
   label,
   icon: Icon,
-  gradient,
+  className,
 }: {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  gradient: string;
+  className: string;
 }) {
   return (
     <Link
       href={href}
-      className={`flex min-h-[110px] flex-col justify-between rounded-[1.15rem] bg-gradient-to-br ${gradient} p-3.5 text-white shadow-card transition active:scale-[0.98]`}
+      className={`flex min-h-[104px] flex-col justify-between rounded-[1.15rem] p-3.5 text-white shadow-card transition active:scale-[0.98] ${className}`}
     >
       <Icon className="h-6 w-6 opacity-90" strokeWidth={2} />
       <span className="text-[15px] font-semibold leading-snug">{label}</span>
@@ -276,14 +276,14 @@ function QuickCard({
   title,
   subtitle,
   icon: Icon,
-  gradient,
+  className,
   href,
   onClick,
 }: {
   title: string;
   subtitle: string;
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  gradient: string;
+  className: string;
   href?: string;
   onClick?: () => void;
 }) {
@@ -297,18 +297,18 @@ function QuickCard({
     </>
   );
 
-  const className = `flex min-h-[100px] flex-col justify-end rounded-[1.15rem] bg-gradient-to-br ${gradient} p-3.5 text-white shadow-card transition active:scale-[0.97]`;
+  const cardClass = `flex min-h-[96px] flex-col justify-end rounded-[1.15rem] p-3.5 text-white shadow-card transition active:scale-[0.97] ${className}`;
 
   if (href) {
     return (
-      <Link href={href} className={className}>
+      <Link href={href} className={cardClass}>
         {inner}
       </Link>
     );
   }
 
   return (
-    <button type="button" onClick={onClick} className={`${className} text-left`}>
+    <button type="button" onClick={onClick} className={`${cardClass} text-left`}>
       {inner}
     </button>
   );
