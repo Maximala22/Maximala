@@ -18,6 +18,7 @@ import {
   LogOut,
   ChevronRight,
   Smartphone,
+  RotateCcw,
 } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 import Card from "@/components/Card";
@@ -26,6 +27,8 @@ import PageContainer from "@/components/PageContainer";
 import SectionTitle from "@/components/SectionTitle";
 import { clearUser, getArchivedJobs } from "@/lib/storage";
 import { downloadBackup, importBackup, getBackupWarning } from "@/lib/backup";
+import { resetFleetDefaults } from "@/lib/fleetStorage";
+import { resetContactsDefaults } from "@/lib/contacts";
 
 const viktigtItems = [
   { href: "/installera", label: "Installera som app", subtitle: "Lägg på hemskärmen", icon: Smartphone, color: "bg-primaryLight text-primary" },
@@ -47,6 +50,7 @@ export default function MenyPage() {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState("");
+  const [resetMsg, setResetMsg] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const backupWarning = getBackupWarning();
   const archived = getArchivedJobs();
@@ -154,6 +158,36 @@ export default function MenyPage() {
           <input ref={fileRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
           {importMsg && (
             <p className="pt-1 text-center text-sm font-medium text-primary">{importMsg}</p>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              if (
+                confirm(
+                  "Återställ standardpersonal, fordon och snabbkontakter? Dina egna tillägg tas bort."
+                )
+              ) {
+                resetFleetDefaults();
+                resetContactsDefaults();
+                setResetMsg("Standarddata återställd.");
+                setTimeout(() => setResetMsg(""), 3000);
+              }
+            }}
+            className="w-full"
+          >
+            <Card interactive className="flex items-center gap-3 py-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-background text-muted">
+                <RotateCcw className="h-5 w-5" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="font-semibold">Återställ standarddata</p>
+                <p className="text-sm text-muted">Personal, fordon och kontakter</p>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted" />
+            </Card>
+          </button>
+          {resetMsg && (
+            <p className="pt-1 text-center text-sm font-medium text-success">{resetMsg}</p>
           )}
         </div>
       </section>

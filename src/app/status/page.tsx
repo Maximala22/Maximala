@@ -1,53 +1,51 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, AlertCircle, Plus, ClipboardList, StickyNote } from "lucide-react";
+import { CheckCircle2, AlertCircle, Plus, ClipboardList, StickyNote, Shield, Download } from "lucide-react";
 import Header from "@/components/Header";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
 import PageContainer from "@/components/PageContainer";
 import SectionTitle from "@/components/SectionTitle";
-import { getStatusSummary, getDetailedStatusItems } from "@/lib/aiStatus";
+import {
+  getOperationalSummary,
+  getDetailedStatusItems,
+  getStatusSummary,
+} from "@/lib/aiStatus";
+import { getLastBackupAt } from "@/lib/storage";
+import { downloadBackup } from "@/lib/backup";
 
 export default function StatusPage() {
-  const summary = getStatusSummary();
+  const operational = getOperationalSummary();
+  const full = getStatusSummary();
   const details = getDetailedStatusItems();
+  const lastBackup = getLastBackupAt();
+  const hasBackupIssue = full.count > operational.count;
 
   return (
     <PageContainer>
-      <Header
-        title="Att kolla"
-        subtitle="Viktiga saker som behöver göras."
-      />
+      <Header title="Att kolla" subtitle="Viktiga saker som behöver göras." />
 
       <Card
         className={`mt-4 ${
-          summary.allGood
-            ? "border-emerald-200/60 bg-gradient-to-br from-emerald-50 to-green-50"
-            : "border-amber-200/60 bg-gradient-to-br from-amber-50 to-orange-50"
+          operational.allGood
+            ? "border-success/20 bg-successLight"
+            : "border-warning/20 bg-warning-light"
         }`}
       >
         <div className="flex items-start gap-3">
-          {summary.allGood ? (
-            <CheckCircle2 className="h-7 w-7 shrink-0 text-emerald-600" />
+          {operational.allGood ? (
+            <CheckCircle2 className="h-7 w-7 shrink-0 text-success" />
           ) : (
-            <AlertCircle className="h-7 w-7 shrink-0 text-amber-600" />
+            <AlertCircle className="h-7 w-7 shrink-0 text-warning" />
           )}
           <div>
-            <p
-              className={`text-xl font-bold ${
-                summary.allGood ? "text-emerald-800" : "text-amber-900"
-              }`}
-            >
-              {summary.summaryText}
-            </p>
-            {summary.allGood ? (
-              <p className="mt-2 text-sm text-muted">
-                Inga viktiga saker saknas just nu.
-              </p>
+            <p className="text-xl font-bold text-text">{operational.summaryText}</p>
+            {operational.allGood ? (
+              <p className="mt-2 text-sm text-muted">Inga viktiga saker saknas just nu.</p>
             ) : (
               <ul className="mt-3 space-y-1.5">
-                {summary.items.slice(0, 5).map((item) => (
+                {operational.items.map((item) => (
                   <li key={item.id} className="text-sm leading-relaxed">
                     • {item.message}
                   </li>
@@ -58,7 +56,7 @@ export default function StatusPage() {
         </div>
       </Card>
 
-      {summary.allGood && (
+      {operational.allGood && (
         <div className="mt-4 grid grid-cols-1 gap-2">
           <Link href="/jobb/ny">
             <Button fullWidth variant="secondary" className="justify-start gap-2">
@@ -100,6 +98,45 @@ export default function StatusPage() {
           </div>
         </section>
       )}
+
+      <section className="mt-6">
+        <SectionTitle>Backup</SectionTitle>
+        <Card className="border-flemstromBlue/15 bg-flemstromBlueLight/50 p-4">
+          <div className="flex items-start gap-3">
+            <Shield className="h-6 w-6 shrink-0 text-flemstromBlue" />
+            <div className="min-w-0 flex-1">
+              {hasBackupIssue ? (
+                <>
+                  <p className="font-bold text-text">Backup rekommenderas</p>
+                  <p className="mt-1 text-sm text-muted">
+                    Spara en kopia av appens data så inget går förlorat.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-bold text-text">Backup finns</p>
+                  <p className="mt-1 text-sm text-muted">
+                    Senaste backup:{" "}
+                    {lastBackup
+                      ? new Date(lastBackup).toLocaleDateString("sv-SE")
+                      : "–"}
+                  </p>
+                </>
+              )}
+              <Button
+                fullWidth
+                size="sm"
+                variant="secondary"
+                className="mt-3 gap-2"
+                onClick={downloadBackup}
+              >
+                <Download className="h-4 w-4" />
+                Exportera backup
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </section>
     </PageContainer>
   );
 }

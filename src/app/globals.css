@@ -15,13 +15,21 @@
   --brand-blue-dark: #005d8f;
   --brand-blue-light: #e6f6fc;
   --success: #159a62;
+  --success-dark: #0f7a4d;
   --success-light: #e8f8ef;
+  --note: #f2b84b;
+  --note-dark: #b7791f;
+  --note-light: #fff4d6;
   --ai-purple: #7c3aed;
+  --ai-purple-dark: #5b21b6;
   --ai-purple-light: #f1eafe;
   --utility-cyan: #0ea5a8;
+  --utility-cyan-dark: #0f766e;
   --utility-cyan-light: #e6fafa;
   --warning: #d97706;
+  --warning-light: #fef3c7;
   --danger: #dc2626;
+  --danger-light: #fee2e2;
 }
 
 html {

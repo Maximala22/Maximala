@@ -150,6 +150,12 @@ export function searchContacts(query: string): QuickContact[] {
   );
 }
 
+export function resetContactsDefaults(): void {
+  if (!isClient()) return;
+  localStorage.removeItem(CONTACTS_KEY);
+  seedContacts();
+}
+
 export function toggleFavorite(id: string): void {
   const all = getManualContacts();
   const idx = all.findIndex((c) => c.id === id);

@@ -31,15 +31,16 @@ export default function LoginPage() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center bg-background px-6 py-10">
       <div className="flex w-full max-w-sm flex-col items-center">
-        <BrandLogo size="login" className="mb-10 w-full" />
+        <BrandLogo size="login" className="mb-8 w-full" />
 
-        <h1 className="text-[2rem] font-bold tracking-tight text-text">Jobbminne</h1>
-        <p className="mt-1 text-lg font-semibold text-flemstromBlue">Flemströms</p>
-        <p className="mb-8 text-sm text-muted">Intern arbetsapp</p>
+        <h1 className="text-[2.25rem] font-extrabold tracking-tight text-text">Jobbminne</h1>
+        <p className="mt-2 text-center text-base text-muted">
+          Intern arbetsapp för Flemströms
+        </p>
 
-        <div className="w-full space-y-4">
+        <div className="mt-8 w-full space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-muted">Ditt namn</label>
+            <label className="label-upper mb-1.5 block">Ditt namn</label>
             <input
               type="text"
               value={name}
@@ -50,7 +51,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-muted">PIN</label>
+            <label className="label-upper mb-1.5 block">PIN</label>
             <input
               type="password"
               inputMode="numeric"
@@ -60,17 +61,17 @@ export default function LoginPage() {
               className="input-field"
             />
           </div>
-          {error && <p className="text-sm text-danger">{error}</p>}
+          {error && <p className="text-sm font-medium text-danger">{error}</p>}
           <Button
             fullWidth
             size="lg"
             onClick={handleLogin}
-            className="bg-gradient-to-r from-primary to-primaryDark shadow-warm"
+            className="min-h-[52px] bg-gradient-to-r from-primary to-primaryDark shadow-warm"
           >
             Logga in
           </Button>
-          <p className="pt-1 text-center text-xs leading-relaxed text-muted">
-            All data sparas lokalt på enheten.
+          <p className="pt-1 text-center text-sm text-muted">
+            Data sparas på enheten.
           </p>
         </div>
       </div>
