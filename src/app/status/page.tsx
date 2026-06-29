@@ -14,6 +14,7 @@ import {
 import { getLastBackupAt } from "@/lib/storage";
 import { downloadBackup } from "@/lib/backup";
 import { todayISO } from "@/lib/utils";
+import { appConfig } from "@/lib/appConfig";
 
 export default function StatusPage() {
   const full = getStatusSummary();
@@ -106,9 +107,9 @@ export default function StatusPage() {
             <div className="min-w-0 flex-1">
               {hasBackupIssue ? (
                 <>
-                  <p className="font-bold text-text">Backup rekommenderas</p>
+                  <p className="font-bold text-text">Spara en kopia</p>
                   <p className="mt-1 text-sm text-muted">
-                    Spara en kopia av appens data så inget går förlorat.
+                    {appConfig.backupDescription}
                   </p>
                 </>
               ) : (

@@ -39,7 +39,7 @@ export default function JobbPage() {
           </div>
           <p className="text-lg font-bold">Inga jobb ännu</p>
           <p className="mt-2 text-sm text-muted">
-            Skapa ditt första jobb för att komma igång.
+            Skapa ditt första jobb och samla rapporter, bilder och anteckningar på ett ställe.
           </p>
           <Link href="/jobb/ny" className="mt-6 inline-block">
             <Button size="lg">Skapa jobb</Button>

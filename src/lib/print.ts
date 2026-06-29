@@ -1,5 +1,6 @@
 import type { Job, Note, WorkLog } from "./types";
 import { formatHours } from "./utils";
+import { appConfig } from "./appConfig";
 
 function baseStyles(): string {
   return `
@@ -18,7 +19,7 @@ function baseStyles(): string {
 }
 
 function footer(): string {
-  return `<div class="footer">Jobbminne · Flemströms · Utskriven ${new Date().toLocaleString("sv-SE")}</div>`;
+  return `<div class="footer">${appConfig.appName} · ${appConfig.companyName} · Utskriven ${new Date().toLocaleString("sv-SE")}</div>`;
 }
 
 export function printHtml(title: string, bodyHtml: string): void {
@@ -33,7 +34,7 @@ export function printHtml(title: string, bodyHtml: string): void {
       ${baseStyles()}
     </head>
     <body>
-      <div class="brand">Flemströms · Jobbminne</div>
+      <div class="brand">${appConfig.companyName} · ${appConfig.appName}</div>
       ${bodyHtml}
       ${footer()}
     </body>

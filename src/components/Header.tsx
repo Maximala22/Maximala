@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { appConfig } from "@/lib/appConfig";
 
 type HeaderProps = {
   title?: string;
@@ -17,9 +18,9 @@ export default function Header({ title, subtitle, brand, backHref, className }: 
           ← Tillbaka
         </Link>
       )}
-      {brand && (
+      {brand && appConfig.showCompanyBranding && (
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-flemstromBlue">
-          Flemströms
+          {appConfig.companyName}
         </p>
       )}
       {title && <h1 className="text-2xl font-bold tracking-tight text-text">{title}</h1>}

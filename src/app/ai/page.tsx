@@ -19,6 +19,12 @@ import { cn } from "@/lib/utils";
 
 const PRIMARY_PROMPTS = [
   {
+    label: "Arbetsrapport",
+    prompt: "Skriv en tydlig arbetsrapport baserat på detta: ",
+    icon: FileText,
+    iconBg: "bg-primary/12 text-primary",
+  },
+  {
     label: "Skriv SMS",
     prompt: "Skriv ett kort SMS till kunden om att ",
     icon: MessageSquare,
@@ -29,12 +35,6 @@ const PRIMARY_PROMPTS = [
     prompt: "Skriv ett kort och vänligt mejl till kunden om att ",
     icon: Mail,
     iconBg: "bg-flemstromBlue/12 text-flemstromBlue",
-  },
-  {
-    label: "Arbetsrapport",
-    prompt: "Skriv en tydlig arbetsrapport baserat på detta: ",
-    icon: FileText,
-    iconBg: "bg-primary/12 text-primary",
   },
 ];
 
@@ -143,8 +143,8 @@ export default function AIPage() {
   return (
     <PageContainer>
       <Header
-        title="Fråga Jobbminne AI"
-        subtitle="Skriv mejl, SMS eller rapporter. Kopiera svaret direkt."
+        title="Hjälp att skriva"
+        subtitle="Få hjälp att skriva rapporter, SMS och mejl."
       />
 
       {!response && (

@@ -64,7 +64,7 @@ export function importBackup(json: unknown): { success: boolean; error?: string 
 
 export function getBackupWarning(): string | null {
   const last = getLastBackupAt();
-  if (!last) return "Backup rekommenderas — spara en kopia av appens data.";
+  if (!last) return "Backup rekommenderas — spara en kopia ibland.";
   const days = Math.floor((Date.now() - new Date(last).getTime()) / (1000 * 60 * 60 * 24));
   if (days > 14) return `Senaste backup var för ${days} dagar sedan.`;
   return null;

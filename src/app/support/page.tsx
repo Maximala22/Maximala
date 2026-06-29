@@ -8,8 +8,8 @@ import Card from "@/components/Card";
 import Button from "@/components/Button";
 import PageContainer from "@/components/PageContainer";
 import SectionTitle from "@/components/SectionTitle";
-import { mailHref } from "@/lib/utils";
 import { getUserName } from "@/lib/storage";
+import { appConfig, getSupportMailto } from "@/lib/appConfig";
 
 export default function SupportPage() {
   const [showForm, setShowForm] = useState(false);
@@ -18,18 +18,19 @@ export default function SupportPage() {
   const [message, setMessage] = useState("");
 
   const canSend = subject.trim().length > 0 && message.trim().length > 0;
+  const hasSupportEmail = !!appConfig.supportEmail;
 
   const handleContact = () => {
-    if (!canSend) return;
+    if (!canSend || !hasSupportEmail) return;
     const userName = name || getUserName() || "";
     const body = `Namn: ${userName}\nÄrende: ${subject}\n\n${message}`;
-    const href = mailHref("flemstromelliot@gmail.com", `Support Jobbminne: ${subject}`, body);
+    const href = getSupportMailto(`Support ${appConfig.appName}: ${subject}`, body);
     if (href) window.location.href = href;
   };
 
   return (
     <PageContainer>
-      <Header title="Support & hjälp" subtitle="Vad behöver du hjälp med?" />
+      <Header title="Support & hjälp" subtitle="Få hjälp med appen." />
 
       <div className="mt-4 grid grid-cols-1 gap-2.5">
         <Link href="/ai">
@@ -38,28 +39,30 @@ export default function SupportPage() {
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-bold">Fråga AI</p>
-              <p className="text-sm text-muted">Skriv mejl, SMS och rapporter</p>
+              <p className="font-bold">Hjälp att skriva</p>
+              <p className="text-sm text-muted">Rapporter, SMS och mejl</p>
             </div>
           </Card>
         </Link>
 
-        <button type="button" onClick={() => setShowForm(!showForm)} className="w-full text-left">
-          <Card interactive className="flex items-center gap-3 py-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-flemstromBlueLight text-flemstromBlue">
-              <Mail className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="font-bold">Kontakta support</p>
-              <p className="text-sm text-muted">Skicka ärende till Elliot</p>
-            </div>
-          </Card>
-        </button>
+        {hasSupportEmail && (
+          <button type="button" onClick={() => setShowForm(!showForm)} className="w-full text-left">
+            <Card interactive className="flex items-center gap-3 py-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-flemstromBlueLight text-flemstromBlue">
+                <Mail className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-bold">Kontakta support</p>
+                <p className="text-sm text-muted">Skickas till {appConfig.supportName}</p>
+              </div>
+            </Card>
+          </button>
+        )}
       </div>
 
-      {showForm && (
+      {showForm && hasSupportEmail && (
         <Card className="mt-4 space-y-3">
-          <p className="text-sm text-muted">Skickas som e-post till Elliot.</p>
+          <p className="text-sm text-muted">Skickas som e-post till {appConfig.supportName}.</p>
           <input
             placeholder="Ditt namn"
             value={name}
@@ -89,7 +92,7 @@ export default function SupportPage() {
         <SectionTitle>Vanliga frågor</SectionTitle>
         <div className="space-y-2">
           <HelpItem title="Skapa jobb" text="Gå till Jobb → Skapa jobb. Fyll i titel och kund." />
-          <HelpItem title="Lägg dagsrapport" text="Gå till Dagsrapport → Lägg dagsrapport." />
+          <HelpItem title="Lägg dagsrapport" text="Tryck Lägg dagsrapport på startsidan eller under Dagsrapport." />
           <HelpItem title="Spara backup" text="Gå till Meny → Exportera backup." />
           <HelpItem title="Ring någon" text="Öppna Snabbkontakter och tryck Ring." />
         </div>

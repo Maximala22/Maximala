@@ -36,7 +36,7 @@ export default function AnteckningarPage() {
           </div>
           <p className="text-lg font-bold">Inga anteckningar ännu</p>
           <p className="mt-2 text-sm text-muted">
-            Spara text, bilder eller saker att komma ihåg.
+            Spara mått, bilder och saker att komma ihåg.
           </p>
           <Button className="mt-6" onClick={handleCreate}>
             <Plus className="h-4 w-4" /> Ny anteckning

@@ -120,7 +120,7 @@ function DagsrapportContent() {
               {isToday ? "Inga rapporter idag" : "Inga rapporter denna dag"}
             </p>
             <p className="mt-1 text-sm text-muted">
-              Lägg dagens första rapport.
+              Lägg dagens första rapport med timmar, fordon och vad som gjorts.
             </p>
             <Link href={`/fordon/ny?date=${selectedDate}`} className="mt-4 inline-block">
               <Button>Lägg dagsrapport</Button>

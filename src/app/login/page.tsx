@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/BrandLogo";
 import Button from "@/components/Button";
 import { setUserName, setPin, verifyPin } from "@/lib/storage";
+import { appConfig } from "@/lib/appConfig";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,10 +34,13 @@ export default function LoginPage() {
       <div className="flex w-full max-w-sm flex-col items-center">
         <BrandLogo size="login" className="mb-8 w-full" />
 
-        <h1 className="text-[2.25rem] font-extrabold tracking-tight text-text">Jobbminne</h1>
-        <p className="mt-2 text-center text-base text-muted">
-          Intern arbetsapp för Flemströms
+        <h1 className="text-[2.25rem] font-extrabold tracking-tight text-text">
+          {appConfig.appName}
+        </h1>
+        <p className="mt-2 text-center text-base font-medium text-text">
+          {appConfig.tagline}
         </p>
+        <p className="mt-1 text-center text-sm text-muted">{appConfig.loginSubtitle}</p>
 
         <div className="mt-8 w-full space-y-4">
           <div>

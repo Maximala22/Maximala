@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Card from "@/components/Card";
 import PageContainer from "@/components/PageContainer";
 import { isStandalonePwa } from "@/lib/pwa";
+import { appConfig } from "@/lib/appConfig";
 
 export default function InstalleraPage() {
   const [standalone, setStandalone] = useState(false);
@@ -18,7 +19,7 @@ export default function InstalleraPage() {
     <PageContainer>
       <Header
         title="Installera som app"
-        subtitle="Så här installerar du Jobbminne som app"
+        subtitle={`Så här installerar du ${appConfig.appName} som app`}
         backHref="/meny"
       />
 
@@ -28,7 +29,7 @@ export default function InstalleraPage() {
             <CheckCircle2 className="h-6 w-6 shrink-0 text-emerald-600" />
             <div>
               <p className="font-semibold text-emerald-900">
-                Jobbminne är redan installerad som app.
+                {appConfig.appName} är redan installerad som app.
               </p>
               <p className="mt-1 text-sm text-emerald-800">
                 Du öppnar appen från hemskärmen utan Safari-adressfält.
@@ -45,10 +46,12 @@ export default function InstalleraPage() {
               alt="Jobbminne appikon"
               className="h-28 w-28 rounded-[22%] object-cover shadow-lift"
             />
-            <p className="mt-4 text-lg font-bold text-text">Jobbminne</p>
-            <p className="text-sm font-medium text-flemstromBlue">Flemströms</p>
+            <p className="mt-4 text-lg font-bold text-text">{appConfig.appName}</p>
+            {appConfig.showCompanyBranding && (
+              <p className="text-sm font-medium text-flemstromBlue">{appConfig.companyName}</p>
+            )}
             <p className="mt-3 text-center text-sm text-muted">
-              Så här kommer Jobbminne se ut på hemskärmen
+              Så här kommer {appConfig.appName} se ut på hemskärmen
             </p>
           </Card>
 

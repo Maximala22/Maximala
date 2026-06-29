@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
 import AppShell from "@/components/AppShell";
+import { appConfig } from "@/lib/appConfig";
 
 const manrope = Manrope({
   subsets: ["latin", "latin-ext"],
@@ -11,8 +12,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Jobbminne",
-  description: "Intern arbetsapp för Flemströms",
+  title: appConfig.appName,
+  description: appConfig.subtitle,
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

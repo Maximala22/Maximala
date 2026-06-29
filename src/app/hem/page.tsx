@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   UsersRound,
-  Mail,
   CircleHelp,
   Sparkles,
   Calculator,
@@ -14,6 +13,7 @@ import {
   ClipboardList,
   CheckCircle2,
   AlertCircle,
+  Calendar,
 } from "lucide-react";
 import { getUserName } from "@/lib/storage";
 import { getTodaysWorkLogs, getTotalHoursForDate } from "@/lib/fleetStorage";
@@ -23,9 +23,10 @@ import {
   formatDate,
   capitalizeFirst,
   todayISO,
-  openOutlook,
 } from "@/lib/utils";
 import { getStatusSummary } from "@/lib/aiStatus";
+import { appConfig } from "@/lib/appConfig";
+import { isDemoActive } from "@/lib/demoData";
 import ActionCard from "@/components/ActionCard";
 import Card from "@/components/Card";
 import PageContainer from "@/components/PageContainer";
@@ -47,7 +48,9 @@ export default function HemPage() {
 
   return (
     <PageContainer>
-      <p className="label-upper text-flemstromBlue">Flemströms</p>
+      {appConfig.showCompanyBranding && (
+        <p className="label-upper text-flemstromBlue">{appConfig.companyName}</p>
+      )}
       <p className="mt-2 text-base text-muted">{getGreeting()},</p>
       <h1 className="text-[2rem] font-extrabold leading-tight tracking-tight">
         {userName || "Välkommen"}
@@ -55,44 +58,39 @@ export default function HemPage() {
       <p className="mt-1 text-sm font-medium text-muted">
         {capitalizeFirst(formatDate(new Date()))}
       </p>
+      <p className="mt-2 text-sm leading-relaxed text-muted">{appConfig.subtitle}</p>
 
-      {/* 1. Huvudaction — enda helfärgade kortet */}
+      {isDemoActive() && (
+        <p className="mt-2 rounded-xl bg-note-light px-3 py-2 text-xs font-medium text-note-dark">
+          Demoläge aktivt — exempeldata visas.
+        </p>
+      )}
+
+      {/* 1. Skapa jobb */}
       <div className="mt-5">
         <ActionCard
           variant="primary"
           size="hero"
           title="Skapa jobb"
-          subtitle="Nytt jobb ute på fältet"
+          subtitle="Samla jobb, bilder och anteckningar"
           icon={Plus}
           href="/jobb/ny"
         />
       </div>
 
-      {/* 2. Dagsrapport — sekundär, ljus */}
+      {/* 2. Dagsrapport */}
       <div className="mt-3">
         <ActionCard
           variant="report"
           size="md"
           title="Lägg dagsrapport"
-          subtitle="Vem körde vad idag?"
+          subtitle="Timmar, fordon och vad som gjorts"
           icon={ClipboardList}
           href={`/fordon/ny?date=${today}`}
         />
       </div>
 
-      {/* 3. Snabbkontakter */}
-      <div className="mt-3">
-        <ActionCard
-          variant="success"
-          size="md"
-          title="Snabbkontakter"
-          subtitle="Ring, SMS och mail"
-          icon={UsersRound}
-          href="/kontakter"
-        />
-      </div>
-
-      {/* 4. Dagens fokus */}
+      {/* 3. Dagens fokus */}
       <section className="mt-5">
         <SectionTitle>Dagens fokus</SectionTitle>
         <Card className="p-4">
@@ -104,7 +102,7 @@ export default function HemPage() {
           {allJobs.length === 0 ? (
             <div className="mt-3">
               <p className="text-sm text-muted">
-                Du har inga jobb ännu.
+                Skapa ditt första jobb och samla rapporter, bilder och timmar på ett ställe.
               </p>
               <Link
                 href="/jobb/ny"
@@ -135,45 +133,69 @@ export default function HemPage() {
         </Card>
       </section>
 
-      {/* 5. Status — inkl. backup konsekvent */}
+      {/* 4. Snabbkontakter */}
+      <div className="mt-3">
+        <ActionCard
+          variant="success"
+          size="md"
+          title="Snabbkontakter"
+          subtitle="Ring och maila snabbt"
+          icon={UsersRound}
+          href="/kontakter"
+        />
+      </div>
+
+      {/* 5. Kalender & status */}
       <section className="mt-5">
-        <SectionTitle>Status</SectionTitle>
-        <Link href="/status">
-          <Card
-            interactive
-            className={`flex items-center gap-3 p-3.5 ${
-              status.allGood
-                ? "border-success/15 bg-successLight/70"
-                : "border-warning/20 bg-warning-light"
-            }`}
-          >
-            {status.allGood ? (
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
-            ) : (
-              <AlertCircle className="h-5 w-5 shrink-0 text-warning" />
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-text">{status.summaryText}</p>
-              {!status.allGood && status.items[0] && (
-                <p className="mt-0.5 text-xs text-muted line-clamp-1">
-                  {status.items[0].message}
-                </p>
+        <SectionTitle>Kalender & status</SectionTitle>
+        <div className="space-y-2">
+          <Link href="/kalender">
+            <Card interactive className="flex items-center gap-3 p-3.5">
+              <Calendar className="h-5 w-5 shrink-0 text-flemstromBlue" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold">Kalender</p>
+                <p className="text-xs text-muted">Se jobb och rapporter per dag</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted" />
+            </Card>
+          </Link>
+          <Link href="/status">
+            <Card
+              interactive
+              className={`flex items-center gap-3 p-3.5 ${
+                status.allGood
+                  ? "border-success/15 bg-successLight/70"
+                  : "border-warning/20 bg-warning-light"
+              }`}
+            >
+              {status.allGood ? (
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
+              ) : (
+                <AlertCircle className="h-5 w-5 shrink-0 text-warning" />
               )}
-            </div>
-            <ChevronRight className="h-4 w-4 shrink-0 text-muted" />
-          </Card>
-        </Link>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold">{status.summaryText}</p>
+                {!status.allGood && status.items[0] && (
+                  <p className="mt-0.5 text-xs text-muted line-clamp-1">
+                    {status.items[0].message}
+                  </p>
+                )}
+              </div>
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted" />
+            </Card>
+          </Link>
+        </div>
       </section>
 
-      {/* 6. Verktyg — enkla länkar, inga starka kort */}
+      {/* 6. Verktyg — bonus, längre ner */}
       <section className="mt-5 mb-2">
         <SectionTitle>Verktyg</SectionTitle>
+        <p className="mb-2 text-xs text-muted">Extra hjälpmedel — inte nödvändiga för vardagen.</p>
         <Card className="divide-y divide-border p-0">
           <ToolLink href="/anteckningar" icon={StickyNote} label="Anteckningar" />
-          <ToolLink href="/ai" icon={Sparkles} label="Fråga AI" />
+          <ToolLink href="/ai" icon={Sparkles} label="Hjälp att skriva texter" />
           <ToolLink href="/miniraknare" icon={Calculator} label="Miniräknare" />
           <ToolLink href="/support" icon={CircleHelp} label="Support" />
-          <ToolLink href="#" icon={Mail} label="Outlook" onClick={openOutlook} />
         </Card>
       </section>
     </PageContainer>
@@ -184,28 +206,18 @@ function ToolLink({
   href,
   icon: Icon,
   label,
-  onClick,
 }: {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
-  onClick?: () => void;
 }) {
-  const inner = (
-    <div className="flex items-center gap-3 px-4 py-3.5 active:bg-background">
-      <Icon className="h-5 w-5 text-muted" />
-      <span className="flex-1 text-sm font-semibold">{label}</span>
-      <ChevronRight className="h-4 w-4 text-muted" />
-    </div>
+  return (
+    <Link href={href}>
+      <div className="flex items-center gap-3 px-4 py-3.5 active:bg-background">
+        <Icon className="h-5 w-5 text-muted" />
+        <span className="flex-1 text-sm font-semibold">{label}</span>
+        <ChevronRight className="h-4 w-4 text-muted" />
+      </div>
+    </Link>
   );
-
-  if (onClick) {
-    return (
-      <button type="button" onClick={onClick} className="w-full text-left">
-        {inner}
-      </button>
-    );
-  }
-
-  return <Link href={href}>{inner}</Link>;
 }
