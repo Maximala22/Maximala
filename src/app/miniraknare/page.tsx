@@ -7,6 +7,7 @@ import PageContainer from "@/components/PageContainer";
 import SectionTitle from "@/components/SectionTitle";
 
 export default function MiniraknarePage() {
+  const [showCalc, setShowCalc] = useState(false);
   const [display, setDisplay] = useState("0");
   const [prev, setPrev] = useState<number | null>(null);
   const [op, setOp] = useState<string | null>(null);
@@ -65,37 +66,50 @@ export default function MiniraknarePage() {
     <PageContainer>
       <Header
         title="Miniräknare"
-        subtitle="Räkna timmar, priser och mått."
+        subtitle="Timmar, priser och mått för jobbet."
       />
 
-      <Card className="mt-4 py-3">
-        <p className="text-right text-3xl font-bold tracking-tight">{display}</p>
-        {op && prev !== null && (
-          <p className="text-right text-xs text-muted">{prev} {op}</p>
-        )}
-      </Card>
-
-      <div className="mt-3 grid grid-cols-4 gap-1.5">
-        <CalcBtn label="C" onClick={clear} variant="muted" />
-        <CalcBtn label="⌫" onClick={backspace} variant="muted" />
-        <CalcBtn label="÷" onClick={() => operate("÷")} variant="op" />
-        <CalcBtn label="×" onClick={() => operate("×")} variant="op" />
-        {["7","8","9"].map((n) => <CalcBtn key={n} label={n} onClick={() => input(n)} />)}
-        <CalcBtn label="-" onClick={() => operate("-")} variant="op" />
-        {["4","5","6"].map((n) => <CalcBtn key={n} label={n} onClick={() => input(n)} />)}
-        <CalcBtn label="+" onClick={() => operate("+")} variant="op" />
-        {["1","2","3"].map((n) => <CalcBtn key={n} label={n} onClick={() => input(n)} />)}
-        <CalcBtn label="=" onClick={equals} variant="primary" className="row-span-2" />
-        <CalcBtn label="0" onClick={() => input("0")} className="col-span-2" />
-        <CalcBtn label="." onClick={() => input(".")} />
-      </div>
-
-      <section className="mt-5 space-y-2">
+      <section className="mt-4 space-y-2">
         <SectionTitle>Arbetsräknare</SectionTitle>
         <WorkCalc title="Timmar × timpris" fields={["Timmar", "Timpris (kr)"]} calc={(a, b) => `${(a * b).toLocaleString("sv-SE")} kr`} />
         <WorkCalc title="Antal × pris" fields={["Antal", "Pris (kr)"]} calc={(a, b) => `${(a * b).toLocaleString("sv-SE")} kr`} />
         <WorkCalc title="Längd × bredd" fields={["Längd (m)", "Bredd (m)"]} calc={(a, b) => `${(a * b).toLocaleString("sv-SE")} m²`} />
         <WorkCalc title="Area × pris" fields={["Area (m²)", "Pris (kr/m²)"]} calc={(a, b) => `${(a * b).toLocaleString("sv-SE")} kr`} />
+      </section>
+
+      <section className="mt-6">
+        <button
+          type="button"
+          onClick={() => setShowCalc(!showCalc)}
+          className="w-full py-2 text-center text-sm font-semibold text-primary"
+        >
+          {showCalc ? "▲ Dölj vanlig räknare" : "▼ Visa vanlig räknare"}
+        </button>
+
+        {showCalc && (
+          <>
+            <Card className="mt-3 py-3">
+              <p className="text-right text-3xl font-bold tracking-tight">{display}</p>
+              {op && prev !== null && (
+                <p className="text-right text-xs text-muted">{prev} {op}</p>
+              )}
+            </Card>
+            <div className="mt-3 grid grid-cols-4 gap-1.5">
+              <CalcBtn label="C" onClick={clear} variant="muted" />
+              <CalcBtn label="⌫" onClick={backspace} variant="muted" />
+              <CalcBtn label="÷" onClick={() => operate("÷")} variant="op" />
+              <CalcBtn label="×" onClick={() => operate("×")} variant="op" />
+              {["7","8","9"].map((n) => <CalcBtn key={n} label={n} onClick={() => input(n)} />)}
+              <CalcBtn label="-" onClick={() => operate("-")} variant="op" />
+              {["4","5","6"].map((n) => <CalcBtn key={n} label={n} onClick={() => input(n)} />)}
+              <CalcBtn label="+" onClick={() => operate("+")} variant="op" />
+              {["1","2","3"].map((n) => <CalcBtn key={n} label={n} onClick={() => input(n)} />)}
+              <CalcBtn label="=" onClick={equals} variant="primary" className="row-span-2" />
+              <CalcBtn label="0" onClick={() => input("0")} className="col-span-2" />
+              <CalcBtn label="." onClick={() => input(".")} />
+            </div>
+          </>
+        )}
       </section>
     </PageContainer>
   );

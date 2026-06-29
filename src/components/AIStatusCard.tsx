@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { CheckCircle2, AlertCircle } from "lucide-react";
-import { getOperationalSummary } from "@/lib/aiStatus";
+import { getStatusSummary } from "@/lib/aiStatus";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function AIStatusCard({ compact }: Props) {
-  const summary = getOperationalSummary();
+  const summary = getStatusSummary();
 
   return (
     <Link

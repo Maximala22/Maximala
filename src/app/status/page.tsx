@@ -8,19 +8,18 @@ import Button from "@/components/Button";
 import PageContainer from "@/components/PageContainer";
 import SectionTitle from "@/components/SectionTitle";
 import {
-  getOperationalSummary,
   getDetailedStatusItems,
   getStatusSummary,
 } from "@/lib/aiStatus";
 import { getLastBackupAt } from "@/lib/storage";
 import { downloadBackup } from "@/lib/backup";
+import { todayISO } from "@/lib/utils";
 
 export default function StatusPage() {
-  const operational = getOperationalSummary();
   const full = getStatusSummary();
   const details = getDetailedStatusItems();
   const lastBackup = getLastBackupAt();
-  const hasBackupIssue = full.count > operational.count;
+  const hasBackupIssue = full.items.some((i) => i.id.startsWith("no-backup") || i.id.startsWith("old-backup"));
 
   return (
     <PageContainer>
@@ -28,24 +27,24 @@ export default function StatusPage() {
 
       <Card
         className={`mt-4 ${
-          operational.allGood
+          full.allGood
             ? "border-success/20 bg-successLight"
             : "border-warning/20 bg-warning-light"
         }`}
       >
         <div className="flex items-start gap-3">
-          {operational.allGood ? (
+          {full.allGood ? (
             <CheckCircle2 className="h-7 w-7 shrink-0 text-success" />
           ) : (
             <AlertCircle className="h-7 w-7 shrink-0 text-warning" />
           )}
           <div>
-            <p className="text-xl font-bold text-text">{operational.summaryText}</p>
-            {operational.allGood ? (
+            <p className="text-xl font-bold text-text">{full.summaryText}</p>
+            {full.allGood ? (
               <p className="mt-2 text-sm text-muted">Inga viktiga saker saknas just nu.</p>
             ) : (
               <ul className="mt-3 space-y-1.5">
-                {operational.items.map((item) => (
+                {full.items.map((item) => (
                   <li key={item.id} className="text-sm leading-relaxed">
                     • {item.message}
                   </li>
@@ -56,14 +55,14 @@ export default function StatusPage() {
         </div>
       </Card>
 
-      {operational.allGood && (
+      {full.allGood && (
         <div className="mt-4 grid grid-cols-1 gap-2">
           <Link href="/jobb/ny">
             <Button fullWidth variant="secondary" className="justify-start gap-2">
               <Plus className="h-4 w-4" /> Skapa jobb
             </Button>
           </Link>
-          <Link href="/fordon">
+          <Link href={`/fordon/ny?date=${todayISO()}`}>
             <Button fullWidth variant="secondary" className="justify-start gap-2">
               <ClipboardList className="h-4 w-4" /> Lägg rapport
             </Button>

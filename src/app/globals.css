@@ -66,6 +66,6 @@ button {
   }
 
   .nav-safe-bottom {
-    padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px));
   }
 }

@@ -4,10 +4,10 @@ import { useState } from "react";
 import {
   Mail,
   MessageSquare,
-  Sparkles,
   FileText,
   HelpCircle,
   PenLine,
+  Sparkles,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Card from "@/components/Card";
@@ -17,49 +17,45 @@ import Toast from "@/components/Toast";
 import { copyToClipboard } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
-const QUICK_PROMPTS = [
+const PRIMARY_PROMPTS = [
   {
-    label: "Skriv arbetsrapport",
-    prompt: "Skriv en tydlig arbetsrapport baserat på detta: ",
-    icon: FileText,
-    iconBg: "bg-primary/12 text-primary",
-    card: "border-primary/15 bg-primaryLight/40",
-    featured: true,
+    label: "Skriv SMS",
+    prompt: "Skriv ett kort SMS till kunden om att ",
+    icon: MessageSquare,
+    iconBg: "bg-success/12 text-success",
   },
   {
     label: "Skriv mejl",
     prompt: "Skriv ett kort och vänligt mejl till kunden om att ",
     icon: Mail,
     iconBg: "bg-flemstromBlue/12 text-flemstromBlue",
-    card: "border-flemstromBlue/10 bg-flemstromBlueLight/50",
   },
   {
-    label: "Skriv SMS",
-    prompt: "Skriv ett kort SMS till kunden om att ",
-    icon: MessageSquare,
-    iconBg: "bg-success/12 text-success",
-    card: "border-success/10 bg-successLight/60",
+    label: "Arbetsrapport",
+    prompt: "Skriv en tydlig arbetsrapport baserat på detta: ",
+    icon: FileText,
+    iconBg: "bg-primary/12 text-primary",
   },
+];
+
+const MORE_PROMPTS = [
   {
     label: "Förbättra text",
     prompt: "Förbättra den här texten: ",
     icon: PenLine,
     iconBg: "bg-aiPurple/12 text-aiPurple",
-    card: "border-aiPurple/10 bg-aiPurpleLight/50",
   },
   {
     label: "Förklara appen",
     prompt: "Förklara enkelt hur jag ",
     icon: HelpCircle,
     iconBg: "bg-utilityCyan/12 text-utilityCyan-dark",
-    card: "border-utilityCyan/10 bg-utilityCyanLight/50",
   },
   {
     label: "Fråga fritt",
     prompt: "",
     icon: Sparkles,
     iconBg: "bg-background text-muted",
-    card: "border-border bg-card",
   },
 ];
 
@@ -72,6 +68,7 @@ export default function AIPage() {
   const [source, setSource] = useState<ResponseSource>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [toast, setToast] = useState("");
+  const [showMore, setShowMore] = useState(false);
 
   const canAsk = prompt.trim().length > 0;
 
@@ -120,54 +117,50 @@ export default function AIPage() {
     setErrorMsg("");
   };
 
+  const PromptBtn = ({
+    label,
+    prompt: p,
+    icon: Icon,
+    iconBg,
+  }: {
+    label: string;
+    prompt: string;
+    icon: React.ComponentType<{ className?: string }>;
+    iconBg: string;
+  }) => (
+    <button
+      type="button"
+      onClick={() => setPrompt(p)}
+      className="flex min-h-[52px] w-full items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3 text-left transition active:scale-[0.98]"
+    >
+      <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", iconBg)}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <span className="text-sm font-bold">{label}</span>
+    </button>
+  );
+
   return (
     <PageContainer>
       <Header
         title="Fråga Jobbminne AI"
-        subtitle="Skriv mejl, SMS, rapporter eller ställ en fråga. Svaret kan du kopiera direkt."
+        subtitle="Skriv mejl, SMS eller rapporter. Kopiera svaret direkt."
       />
 
       {!response && (
-        <section className="mt-4">
-          <p className="mb-3 text-sm font-semibold text-text">Vad vill du göra?</p>
-          <div className="grid grid-cols-2 gap-2">
-            {QUICK_PROMPTS.map((q) => {
-              const Icon = q.icon;
-              return (
-                <button
-                  key={q.label}
-                  type="button"
-                  onClick={() => setPrompt(q.prompt)}
-                  className={cn(
-                    "flex min-h-[80px] flex-col justify-between rounded-[1.15rem] border p-3 text-left transition active:scale-[0.98]",
-                    q.card,
-                    q.featured && "col-span-2 min-h-[72px] flex-row items-center gap-3"
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "flex shrink-0 items-center justify-center rounded-xl",
-                      q.iconBg,
-                      q.featured ? "h-10 w-10" : "h-9 w-9"
-                    )}
-                  >
-                    <Icon className="h-5 w-5" strokeWidth={2} />
-                  </div>
-                  <span
-                    className={cn(
-                      "font-bold leading-snug text-text",
-                      q.featured ? "text-base" : "text-sm"
-                    )}
-                  >
-                    {q.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          <p className="mt-2.5 text-xs text-muted">
-            Snabbknapparna fyller bara textfältet. Du kan ändra innan du frågar.
-          </p>
+        <section className="mt-4 space-y-2">
+          {PRIMARY_PROMPTS.map((q) => (
+            <PromptBtn key={q.label} {...q} />
+          ))}
+          <button
+            type="button"
+            onClick={() => setShowMore(!showMore)}
+            className="w-full py-2 text-center text-sm font-semibold text-primary"
+          >
+            {showMore ? "▲ Färre val" : "▼ Fler val"}
+          </button>
+          {showMore &&
+            MORE_PROMPTS.map((q) => <PromptBtn key={q.label} {...q} />)}
         </section>
       )}
 
@@ -179,9 +172,15 @@ export default function AIPage() {
         className="input-field mt-4 resize-none"
       />
 
+      {!canAsk && !loading && (
+        <p className="mt-2 text-xs text-muted">
+          Skriv något eller välj en snabbknapp.
+        </p>
+      )}
+
       <div className="mt-3 flex gap-2">
         <Button fullWidth onClick={ask} disabled={loading || !canAsk}>
-          {loading ? "Tänker…" : canAsk ? "Fråga AI" : "Skriv en fråga först"}
+          {loading ? "Tänker…" : canAsk ? "Fråga AI" : "Skriv något först"}
         </Button>
         {prompt.trim() && (
           <Button variant="secondary" onClick={clearAll}>
@@ -192,14 +191,9 @@ export default function AIPage() {
 
       {response && (
         <Card className="mt-4">
-          {source === "openai" && (
-            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-flemstromBlue">
-              AI-svar
-            </p>
-          )}
           {(source === "fallback" || source === "error") && (
             <p className="mb-2 text-xs font-medium text-muted">
-              {errorMsg || "AI-tjänsten svarade inte just nu. Visar exempel."}
+              {errorMsg || "AI-tjänsten svarade inte just nu."}
             </p>
           )}
           <p className="whitespace-pre-wrap text-sm leading-relaxed">{response}</p>

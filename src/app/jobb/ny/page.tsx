@@ -72,7 +72,7 @@ function NyttJobbForm() {
   };
 
   return (
-    <PageContainer>
+    <PageContainer compact>
       <Header
         title="Nytt jobb"
         subtitle="Fyll i det viktigaste först"
@@ -82,6 +82,7 @@ function NyttJobbForm() {
       <div className="mt-4 space-y-4">
         <Field label="Titel *" value={title} onChange={setTitle} placeholder="t.ex. Schaktning" />
         <Field label="Kundnamn" value={customerName} onChange={setCustomerName} />
+        <Field label="Telefon" value={customerPhone} onChange={setCustomerPhone} type="tel" />
         <Field
           label="Adress / plats"
           value={address}
@@ -103,11 +104,11 @@ function NyttJobbForm() {
 
         <div>
           <Button fullWidth size="lg" onClick={handleSave} disabled={!canSave}>
-            {canSave ? "Spara jobb" : "Fyll i titel först"}
+            {canSave ? "Spara jobb" : "Fyll i titel för att spara"}
           </Button>
           {!canSave && (
             <p className="mt-2 text-center text-xs text-muted">
-              Skriv en titel på jobbet för att kunna spara.
+              Fyll i titel för att spara.
             </p>
           )}
         </div>
@@ -122,7 +123,6 @@ function NyttJobbForm() {
 
         {showMore && (
           <div className="space-y-4 border-t border-border pt-4">
-            <Field label="Telefon" value={customerPhone} onChange={setCustomerPhone} type="tel" />
             <Field label="Datum" value={date} onChange={setDate} type="date" />
             <Field label="Tid" value={time} onChange={setTime} type="time" />
             <Field label="E-post" value={customerEmail} onChange={setCustomerEmail} type="email" />

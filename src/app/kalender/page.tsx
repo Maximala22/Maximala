@@ -52,6 +52,7 @@ export default function KalenderPage() {
     `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
   const todayStr = todayISO();
+  const selectedIsToday = selectedDate === todayStr;
 
   const dayLabel = capitalizeFirst(
     isoToLocalDate(selectedDate).toLocaleDateString("sv-SE", {
@@ -60,6 +61,7 @@ export default function KalenderPage() {
       month: "long",
     })
   );
+  const dayHeading = selectedIsToday ? `Idag, ${dayLabel}` : `Vald dag, ${dayLabel}`;
 
   return (
     <PageContainer>
@@ -120,7 +122,7 @@ export default function KalenderPage() {
       </Card>
 
       <section className="mt-5">
-        <SectionTitle>{dayLabel}</SectionTitle>
+        <SectionTitle>{dayHeading}</SectionTitle>
 
         {(selectedJobs.length > 0 || selectedLogs.length > 0) && (
           <p className="mb-3 text-sm text-muted">
@@ -139,7 +141,7 @@ export default function KalenderPage() {
                   <Plus className="h-4 w-4" /> Skapa jobb denna dag
                 </Button>
               </Link>
-              <Link href="/fordon">
+              <Link href={`/fordon/ny?date=${selectedDate}`}>
                 <Button fullWidth variant="secondary" className="gap-2">
                   <ClipboardList className="h-4 w-4" /> Lägg rapport
                 </Button>
@@ -180,7 +182,7 @@ export default function KalenderPage() {
                   <Plus className="h-4 w-4" /> Skapa jobb denna dag
                 </Button>
               </Link>
-              <Link href="/fordon">
+              <Link href={`/fordon/ny?date=${selectedDate}`}>
                 <Button fullWidth variant="secondary" size="sm" className="gap-2">
                   <ClipboardList className="h-4 w-4" /> Lägg rapport
                 </Button>

@@ -42,7 +42,7 @@ const verktygItems = [
   { href: "/ai", label: "Fråga Jobbminne AI", subtitle: "Skriv texter", icon: Sparkles, color: "bg-aiPurpleLight text-aiPurple" },
   { href: "/anteckningar", label: "Anteckningar", subtitle: "Spara noteringar", icon: StickyNote, color: "bg-primaryLight text-primaryDark" },
   { href: "/miniraknare", label: "Miniräknare", subtitle: "Timmar & mått", icon: Calculator, color: "bg-utilityCyanLight text-utilityCyan" },
-  { href: "/fordon", label: "Fordon & personal", subtitle: "Dagsrapporter", icon: Truck, color: "bg-flemstromBlueLight text-flemstromBlue" },
+  { href: "/fordon", label: "Dagsrapport", subtitle: "Lägg dagsrapport", icon: Truck, color: "bg-flemstromBlueLight text-flemstromBlue" },
   { href: "/status", label: "Att kolla", subtitle: "Se vad som saknas", icon: CheckCircle2, color: "bg-successLight text-success" },
   { href: "/kalender", label: "Kalender", subtitle: "Jobb per dag", icon: Calendar, color: "bg-flemstromBlueLight text-flemstromBlueDark" },
 ];

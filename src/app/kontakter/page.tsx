@@ -98,8 +98,8 @@ function ContactCard({
       </div>
 
       <div className="mt-2 space-y-1">
-        {!hasPhone && <p className="text-xs text-muted">Telefon saknas</p>}
-        {!hasEmail && <p className="text-xs text-muted">Ingen e-post angiven</p>}
+        {!hasPhone && <p className="text-xs text-muted">Telefonnummer saknas</p>}
+        {!hasEmail && <p className="text-xs text-muted">E-post saknas</p>}
       </div>
 
       {actions.length > 0 && (

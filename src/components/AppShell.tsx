@@ -8,6 +8,7 @@ import { seedContacts } from "@/lib/contacts";
 import BottomNav from "./BottomNav";
 
 const PUBLIC_PATHS = ["/login"];
+const FORM_PATHS = ["/jobb/ny", "/fordon/ny"];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -25,7 +26,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, router]);
 
-  const showNav = !PUBLIC_PATHS.includes(pathname);
+  const showNav =
+    !PUBLIC_PATHS.includes(pathname) &&
+    !FORM_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
   return (
     <div className="min-h-screen bg-background text-text">

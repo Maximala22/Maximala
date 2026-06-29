@@ -29,7 +29,7 @@ export default function Button({
           "bg-primary text-white shadow-warm hover:bg-primaryDark active:opacity-90",
         variant === "primary" &&
           disabled &&
-          "cursor-not-allowed border border-border bg-primaryLight/60 text-muted shadow-none active:scale-100",
+          "cursor-not-allowed border border-border bg-background text-muted shadow-none active:scale-100",
         variant === "secondary" &&
           !disabled &&
           "border border-border bg-card text-text shadow-card active:opacity-90",

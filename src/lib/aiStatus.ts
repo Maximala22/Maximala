@@ -26,7 +26,7 @@ function buildOperationalItems(): StatusItem[] {
     items.push({
       id: "no-report-today",
       message: "Ingen rapport idag",
-      href: "/fordon",
+      href: `/fordon/ny?date=${today}`,
     });
   }
 
@@ -62,7 +62,7 @@ function buildOperationalItems(): StatusItem[] {
     items.push({
       id: "missing-hours",
       message: `${missingHours.length} rapport${missingHours.length > 1 ? "er" : ""} saknar timmar`,
-      href: "/fordon",
+      href: `/fordon/ny?date=${today}`,
     });
   }
 
@@ -76,7 +76,7 @@ function buildBackupItems(): StatusItem[] {
   if (!lastBackup) {
     items.push({
       id: "no-backup",
-      message: "Backup rekommenderas",
+      message: "Backup rekommenderas — spara en kopia ibland.",
       href: "/meny",
     });
   } else {
@@ -108,14 +108,19 @@ function toSummary(items: StatusItem[]): StatusSummary {
   };
 }
 
-/** Operational only — for startsidan (no backup noise) */
-export function getOperationalSummary(): StatusSummary {
+/** Work items only — excludes backup */
+export function getOperationalOnlySummary(): StatusSummary {
   return toSummary(buildOperationalItems());
 }
 
-/** Full status including backup — for /status page */
+/** Full status including backup — for startsidan and /status */
 export function getStatusSummary(): StatusSummary {
   return toSummary([...buildOperationalItems(), ...buildBackupItems()]);
+}
+
+/** @deprecated use getStatusSummary or getOperationalOnlySummary */
+export function getOperationalSummary(): StatusSummary {
+  return getStatusSummary();
 }
 
 /** Soft backup hint for startsidan footer */
@@ -171,7 +176,7 @@ export function getDetailedStatusItems(): StatusItem[] {
       items.push({
         id: `hours-${l.id}`,
         message: `Rapport saknar timmar (${l.driverName ?? "okänd"})`,
-        href: "/fordon",
+        href: `/fordon/ny?date=${today}`,
       })
     );
 
