@@ -14,8 +14,9 @@ import {
   CheckCircle2,
   AlertCircle,
   Calendar,
+  Download,
 } from "lucide-react";
-import { getUserName } from "@/lib/storage";
+import { getUserName, getLastBackupAt } from "@/lib/storage";
 import { getTodaysWorkLogs, getTotalHoursForDate } from "@/lib/fleetStorage";
 import { getActiveJobs, getTodaysJobs } from "@/lib/storage";
 import {
@@ -25,17 +26,30 @@ import {
   todayISO,
 } from "@/lib/utils";
 import { getStatusSummary } from "@/lib/aiStatus";
+import { downloadBackup } from "@/lib/backup";
 import { appConfig } from "@/lib/appConfig";
 import { isDemoActive } from "@/lib/demoData";
 import ActionCard from "@/components/ActionCard";
 import Card from "@/components/Card";
+import Button from "@/components/Button";
 import PageContainer from "@/components/PageContainer";
 import SectionTitle from "@/components/SectionTitle";
+import Toast from "@/components/Toast";
+
+function reportCountLabel(count: number): string {
+  if (count === 1) return "1 rapport";
+  return `${count} rapporter`;
+}
 
 export default function HemPage() {
   const [userName, setUser] = useState("");
+  const [toast, setToast] = useState("");
   const today = todayISO();
   const status = getStatusSummary();
+  const lastBackup = getLastBackupAt();
+  const needsBackup = status.items.some(
+    (i) => i.id === "no-backup" || i.id === "old-backup"
+  );
 
   useEffect(() => {
     setUser(getUserName() ?? "");
@@ -45,20 +59,39 @@ export default function HemPage() {
   const todaysLogs = getTodaysWorkLogs();
   const totalHours = getTotalHoursForDate(today);
   const allJobs = getActiveJobs();
+  const nothingToday = todaysJobs.length === 0 && todaysLogs.length === 0;
+  const isEmptyApp = allJobs.length === 0 && todaysLogs.length === 0;
+  const greeting = getGreeting();
+
+  const handleExportBackup = () => {
+    downloadBackup();
+    setToast("Backup exporterad");
+    setTimeout(() => setToast(""), 2500);
+  };
 
   return (
     <PageContainer>
       {appConfig.showCompanyBranding && (
         <p className="label-upper text-flemstromBlue">{appConfig.companyName}</p>
       )}
-      <p className="mt-2 text-base text-muted">{getGreeting()},</p>
-      <h1 className="text-[2rem] font-extrabold leading-tight tracking-tight">
-        {userName || "Välkommen"}
-      </h1>
+
+      {userName ? (
+        <>
+          <p className="mt-2 text-base text-muted">{greeting},</p>
+          <h1 className="text-[2rem] font-extrabold leading-tight tracking-tight">{userName}</h1>
+        </>
+      ) : (
+        <>
+          <p className="mt-2 text-base text-muted">{greeting}</p>
+          <h1 className="text-[2rem] font-extrabold leading-tight tracking-tight">
+            Välkommen tillbaka
+          </h1>
+        </>
+      )}
+
       <p className="mt-1 text-sm font-medium text-muted">
         {capitalizeFirst(formatDate(new Date()))}
       </p>
-      <p className="mt-2 text-sm leading-relaxed text-muted">{appConfig.subtitle}</p>
 
       {isDemoActive() && (
         <p className="mt-2 rounded-xl bg-note-light px-3 py-2 text-xs font-medium text-note-dark">
@@ -66,131 +99,175 @@ export default function HemPage() {
         </p>
       )}
 
-      {/* 1. Skapa jobb */}
       <div className="mt-5">
         <ActionCard
           variant="primary"
           size="hero"
           title="Skapa jobb"
-          subtitle="Samla jobb, bilder och anteckningar"
+          subtitle="Nytt arbete ute på fältet"
           icon={Plus}
           href="/jobb/ny"
         />
       </div>
 
-      {/* 2. Dagsrapport */}
       <div className="mt-3">
         <ActionCard
           variant="report"
           size="md"
           title="Lägg dagsrapport"
-          subtitle="Timmar, fordon och vad som gjorts"
+          subtitle="Skriv vad som gjorts idag"
           icon={ClipboardList}
-          href={`/fordon/ny?date=${today}`}
+          href={`/dagsrapport/ny?date=${today}`}
         />
       </div>
 
-      {/* 3. Dagens fokus */}
       <section className="mt-5">
         <SectionTitle>Dagens fokus</SectionTitle>
         <Card className="p-4">
-          <p className="text-base font-semibold text-text">
-            {todaysJobs.length} jobb · {todaysLogs.length} rapport
-            {todaysLogs.length !== 1 ? "er" : ""} · {totalHours} h
-          </p>
-
-          {allJobs.length === 0 ? (
-            <div className="mt-3">
-              <p className="text-sm text-muted">
-                Skapa ditt första jobb och samla rapporter, bilder och timmar på ett ställe.
+          {isEmptyApp ? (
+            <>
+              <p className="font-semibold text-text">Inget registrerat idag</p>
+              <p className="mt-2 text-sm text-muted">
+                Skapa ett jobb eller lägg en dagsrapport när arbetet är klart.
               </p>
-              <Link
-                href="/jobb/ny"
-                className="mt-3 inline-flex min-h-[44px] items-center rounded-2xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-warm active:scale-[0.98]"
-              >
-                Skapa jobb
+              <p className="mt-2 text-xs text-muted">Börja med knapparna ovanför.</p>
+            </>
+          ) : nothingToday ? (
+            <>
+              <p className="font-semibold text-text">Inget registrerat idag</p>
+              <p className="mt-1 text-sm text-muted">
+                {allJobs.length} jobb totalt · {reportCountLabel(0)} · {totalHours} h
+              </p>
+              <p className="mt-2 text-sm text-muted">
+                Lägg dagens första rapport när arbetet är klart.
+              </p>
+              <Link href={`/dagsrapport/ny?date=${today}`} className="mt-3 inline-block">
+                <Button variant="secondary" size="sm">
+                  Lägg rapport
+                </Button>
               </Link>
-            </div>
+            </>
           ) : (
-            <div className="mt-3 space-y-1.5">
-              {todaysJobs.slice(0, 2).map((j) => (
-                <Link
-                  key={j.id}
-                  href={`/jobb/${j.id}`}
-                  className="flex items-center justify-between rounded-xl bg-background px-3 py-2.5 active:scale-[0.99]"
-                >
-                  <span className="text-sm font-semibold">{j.title}</span>
-                  <ChevronRight className="h-4 w-4 text-muted" />
-                </Link>
-              ))}
-              {todaysLogs.slice(0, 2).map((l) => (
-                <div key={l.id} className="rounded-xl bg-background px-3 py-2 text-sm text-muted">
-                  {l.driverName} · {l.hours ?? "–"} h
-                </div>
-              ))}
-            </div>
+            <>
+              <p className="text-sm text-muted">
+                {todaysJobs.length} jobb · {reportCountLabel(todaysLogs.length)} · {totalHours} h
+              </p>
+              <div className="mt-3 space-y-1.5">
+                {todaysJobs.slice(0, 2).map((j) => (
+                  <Link
+                    key={j.id}
+                    href={`/jobb/${j.id}`}
+                    className="flex items-center justify-between rounded-xl bg-background px-3 py-2.5 active:bg-background/80"
+                  >
+                    <span className="text-sm font-semibold">{j.title}</span>
+                    <ChevronRight className="h-4 w-4 text-muted" />
+                  </Link>
+                ))}
+                {todaysLogs.slice(0, 2).map((l) => (
+                  <div key={l.id} className="rounded-xl bg-background px-3 py-2 text-sm text-muted">
+                    {l.driverName} · {l.hours ?? "–"} h
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </Card>
       </section>
 
-      {/* 4. Snabbkontakter */}
       <div className="mt-3">
         <ActionCard
           variant="success"
           size="md"
           title="Snabbkontakter"
-          subtitle="Ring och maila snabbt"
+          subtitle="Ring kontor eller personal"
           icon={UsersRound}
           href="/kontakter"
         />
       </div>
 
-      {/* 5. Kalender & status */}
       <section className="mt-5">
-        <SectionTitle>Kalender & status</SectionTitle>
-        <div className="space-y-2">
-          <Link href="/kalender">
-            <Card interactive className="flex items-center gap-3 p-3.5">
-              <Calendar className="h-5 w-5 shrink-0 text-flemstromBlue" />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold">Kalender</p>
-                <p className="text-xs text-muted">Se jobb och rapporter per dag</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted" />
-            </Card>
-          </Link>
-          <Link href="/status">
-            <Card
-              interactive
-              className={`flex items-center gap-3 p-3.5 ${
-                status.allGood
-                  ? "border-success/15 bg-successLight/70"
-                  : "border-warning/20 bg-warning-light"
-              }`}
-            >
-              {status.allGood ? (
-                <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
-              ) : (
-                <AlertCircle className="h-5 w-5 shrink-0 text-warning" />
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold">{status.summaryText}</p>
-                {!status.allGood && status.items[0] && (
-                  <p className="mt-0.5 text-xs text-muted line-clamp-1">
-                    {status.items[0].message}
-                  </p>
-                )}
-              </div>
-              <ChevronRight className="h-4 w-4 shrink-0 text-muted" />
-            </Card>
-          </Link>
-        </div>
+        <SectionTitle>Planering</SectionTitle>
+        <Link href="/kalender">
+          <Card interactive className="flex items-center gap-3 p-3.5">
+            <Calendar className="h-5 w-5 shrink-0 text-flemstromBlue" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold">Kalender</p>
+              <p className="text-xs text-muted">Se jobb och rapporter per dag</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted" />
+          </Card>
+        </Link>
       </section>
 
-      {/* 6. Verktyg — bonus, längre ner */}
+      <section className="mt-5">
+        <SectionTitle>Status</SectionTitle>
+        <Card
+          className={`p-4 ${
+            status.allGood
+              ? "border-success/15 bg-successLight/70"
+              : "border-warning/20 bg-warning-light"
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            {status.allGood ? (
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
+            ) : (
+              <AlertCircle className="h-5 w-5 shrink-0 text-warning" />
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold">{status.summaryText}</p>
+              {!status.allGood && status.items[0] && (
+                <p className="mt-0.5 text-xs text-muted">{status.items[0].message}</p>
+              )}
+              {status.allGood && (
+                <p className="mt-0.5 text-xs text-muted">Data sparas på denna telefon.</p>
+              )}
+              {lastBackup ? (
+                <p className="mt-1 text-xs text-muted">
+                  Senaste backup:{" "}
+                  {new Date(lastBackup).toLocaleDateString("sv-SE", {
+                    day: "numeric",
+                    month: "short",
+                  })}
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-muted">Senaste backup: aldrig</p>
+              )}
+            </div>
+          </div>
+
+          {needsBackup && (
+            <Button
+              fullWidth
+              variant="secondary"
+              size="sm"
+              className="mt-3 gap-2"
+              onClick={handleExportBackup}
+            >
+              <Download className="h-4 w-4" />
+              Exportera backup
+            </Button>
+          )}
+
+          {!needsBackup && !status.allGood && (
+            <Link href="/status" className="mt-3 block">
+              <Button fullWidth variant="secondary" size="sm">
+                Se vad som saknas
+              </Button>
+            </Link>
+          )}
+
+          {status.allGood && !needsBackup && (
+            <Link href="/status" className="mt-3 block text-center text-xs font-medium text-primary">
+              Visa status
+            </Link>
+          )}
+        </Card>
+      </section>
+
       <section className="mt-5 mb-2">
         <SectionTitle>Verktyg</SectionTitle>
-        <p className="mb-2 text-xs text-muted">Extra hjälpmedel — inte nödvändiga för vardagen.</p>
+        <p className="mb-2 text-xs text-muted">Saker som hjälper när du behöver dem.</p>
         <Card className="divide-y divide-border p-0">
           <ToolLink href="/anteckningar" icon={StickyNote} label="Anteckningar" />
           <ToolLink href="/ai" icon={Sparkles} label="Hjälp att skriva texter" />
@@ -198,6 +275,8 @@ export default function HemPage() {
           <ToolLink href="/support" icon={CircleHelp} label="Support" />
         </Card>
       </section>
+
+      <Toast message={toast} visible={!!toast} />
     </PageContainer>
   );
 }

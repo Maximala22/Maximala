@@ -63,7 +63,7 @@ export default function StatusPage() {
               <Plus className="h-4 w-4" /> Skapa jobb
             </Button>
           </Link>
-          <Link href={`/fordon/ny?date=${todayISO()}`}>
+          <Link href={`/dagsrapport/ny?date=${todayISO()}`}>
             <Button fullWidth variant="secondary" className="justify-start gap-2">
               <ClipboardList className="h-4 w-4" /> Lägg rapport
             </Button>

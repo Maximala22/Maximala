@@ -141,7 +141,7 @@ export default function KalenderPage() {
                   <Plus className="h-4 w-4" /> Skapa jobb denna dag
                 </Button>
               </Link>
-              <Link href={`/fordon/ny?date=${selectedDate}`}>
+              <Link href={`/dagsrapport/ny?date=${selectedDate}`}>
                 <Button fullWidth variant="secondary" className="gap-2">
                   <ClipboardList className="h-4 w-4" /> Lägg rapport
                 </Button>
@@ -182,7 +182,7 @@ export default function KalenderPage() {
                   <Plus className="h-4 w-4" /> Skapa jobb denna dag
                 </Button>
               </Link>
-              <Link href={`/fordon/ny?date=${selectedDate}`}>
+              <Link href={`/dagsrapport/ny?date=${selectedDate}`}>
                 <Button fullWidth variant="secondary" size="sm" className="gap-2">
                   <ClipboardList className="h-4 w-4" /> Lägg rapport
                 </Button>

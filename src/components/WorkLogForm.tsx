@@ -68,7 +68,7 @@ export default function WorkLogForm({ date, editId, onSaved, onToast }: WorkLogF
     else createWorkLog(data);
     onToast?.("Rapport sparad");
     onSaved?.();
-    router.push(`/fordon?date=${date}`);
+    router.push(`/dagsrapport?date=${date}&saved=1`);
   };
 
   return (

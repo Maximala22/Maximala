@@ -52,10 +52,7 @@ function DagsrapportContent() {
 
   return (
     <PageContainer>
-      <Header
-        title="Dagsrapport"
-        subtitle="Vem körde vad och vad gjordes?"
-      />
+      <Header title="Dagsrapport" subtitle="Vem körde vad och vad gjordes?" />
 
       <Card className="mt-4 flex items-center justify-between py-2.5">
         <button
@@ -73,7 +70,7 @@ function DagsrapportContent() {
           <button
             type="button"
             onClick={() => setSelectedDate(todayISO())}
-            className="mt-0.5 text-sm font-semibold text-text capitalize"
+            className="mt-0.5 text-sm font-semibold capitalize text-text"
           >
             {dateLabel}
           </button>
@@ -102,7 +99,7 @@ function DagsrapportContent() {
         <p className="text-lg font-bold text-flemstromBlue">{formatHours(totalHours)} h</p>
       </Card>
 
-      <Link href={`/fordon/ny?date=${selectedDate}`} className="mt-4 block">
+      <Link href={`/dagsrapport/ny?date=${selectedDate}`} className="mt-4 block">
         <Button fullWidth size="lg" className="gap-2">
           <Plus className="h-5 w-5" />
           Lägg dagsrapport
@@ -110,9 +107,7 @@ function DagsrapportContent() {
       </Link>
 
       <section className="mt-5">
-        <SectionTitle>
-          {isToday ? "Dagens rapporter" : "Rapporter"}
-        </SectionTitle>
+        <SectionTitle>{isToday ? "Dagens rapporter" : "Rapporter"}</SectionTitle>
 
         {logs.length === 0 ? (
           <Card className="py-6 text-center">
@@ -122,7 +117,7 @@ function DagsrapportContent() {
             <p className="mt-1 text-sm text-muted">
               Lägg dagens första rapport med timmar, fordon och vad som gjorts.
             </p>
-            <Link href={`/fordon/ny?date=${selectedDate}`} className="mt-4 inline-block">
+            <Link href={`/dagsrapport/ny?date=${selectedDate}`} className="mt-4 inline-block">
               <Button>Lägg dagsrapport</Button>
             </Link>
           </Card>
@@ -142,7 +137,7 @@ function DagsrapportContent() {
               )}
               <div className="mt-2.5 flex flex-wrap gap-2">
                 <Link
-                  href={`/fordon/ny?date=${selectedDate}&edit=${log.id}`}
+                  href={`/dagsrapport/ny?date=${selectedDate}&edit=${log.id}`}
                   className="inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-sm font-medium text-text active:scale-[0.98]"
                 >
                   <Pencil className="h-3.5 w-3.5" />
@@ -177,7 +172,7 @@ function DagsrapportContent() {
           onClick={() => setShowResources(!showResources)}
           className="w-full text-left text-sm font-semibold text-primary"
         >
-          {showResources ? "▲ Dölj fordon och personal" : "▼ Visa fordon och personal"}
+          {showResources ? "▲ Dölj resurser" : "▼ Visa fordon och personal"}
         </button>
         {showResources && (
           <div className="mt-3 space-y-3">
@@ -212,7 +207,7 @@ function DagsrapportContent() {
   );
 }
 
-export default function FordonPage() {
+export default function DagsrapportPage() {
   return (
     <Suspense
       fallback={

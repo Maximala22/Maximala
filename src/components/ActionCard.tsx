@@ -31,7 +31,7 @@ const styles: Record<
   { gradient: string; soft: string; icon: string; text: string; sub: string }
 > = {
   primary: {
-    gradient: "bg-gradient-to-br from-primary to-primaryDark text-white shadow-warm",
+    gradient: "bg-primary text-white shadow-warm",
     soft: "bg-primaryLight border border-primary/15 text-text",
     icon: "bg-white/20 text-white",
     text: "text-text",

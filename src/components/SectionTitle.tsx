@@ -10,7 +10,7 @@ export default function SectionTitle({
   return (
     <h2
       className={cn(
-        "mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted",
+        "mb-3 text-xs font-bold uppercase tracking-[0.08em] text-muted",
         className
       )}
     >

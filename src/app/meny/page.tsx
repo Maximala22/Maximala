@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   UsersRound,
   CircleHelp,
@@ -46,13 +46,22 @@ const verktygItems = [
   { href: "/ai", label: "Hjälp att skriva", subtitle: "Rapporter, SMS och mejl", icon: Sparkles, color: "bg-aiPurpleLight text-aiPurple" },
   { href: "/anteckningar", label: "Anteckningar", subtitle: "Spara noteringar", icon: StickyNote, color: "bg-primaryLight text-primaryDark" },
   { href: "/miniraknare", label: "Miniräknare", subtitle: "Timmar & mått", icon: Calculator, color: "bg-utilityCyanLight text-utilityCyan" },
-  { href: "/fordon", label: "Dagsrapport", subtitle: "Lägg dagsrapport", icon: Truck, color: "bg-flemstromBlueLight text-flemstromBlue" },
+  { href: "/dagsrapport", label: "Dagsrapport", subtitle: "Lägg dagsrapport", icon: Truck, color: "bg-flemstromBlueLight text-flemstromBlue" },
   { href: "/status", label: "Att kolla", subtitle: "Se vad som saknas", icon: CheckCircle2, color: "bg-successLight text-success" },
   { href: "/kalender", label: "Kalender", subtitle: "Jobb per dag", icon: Calendar, color: "bg-flemstromBlueLight text-flemstromBlueDark" },
 ];
 
 export default function MenyPage() {
+  return (
+    <Suspense fallback={<PageContainer><p className="mt-8 text-center text-muted">Laddar…</p></PageContainer>}>
+      <MenyContent />
+    </Suspense>
+  );
+}
+
+function MenyContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const fileRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState("");
   const [resetMsg, setResetMsg] = useState("");
@@ -60,6 +69,15 @@ export default function MenyPage() {
   const [showArchived, setShowArchived] = useState(false);
   const backupWarning = getBackupWarning();
   const archived = getArchivedJobs();
+
+  useEffect(() => {
+    if (searchParams.get("export") === "1") {
+      downloadBackup();
+      setToast("Backup exporterad");
+      setTimeout(() => setToast(""), 2500);
+      router.replace("/meny");
+    }
+  }, [searchParams, router]);
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

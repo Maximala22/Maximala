@@ -26,7 +26,7 @@ function buildOperationalItems(): StatusItem[] {
     items.push({
       id: "no-report-today",
       message: "Ingen rapport idag",
-      href: `/fordon/ny?date=${today}`,
+      href: `/dagsrapport/ny?date=${today}`,
     });
   }
 
@@ -62,7 +62,7 @@ function buildOperationalItems(): StatusItem[] {
     items.push({
       id: "missing-hours",
       message: `${missingHours.length} rapport${missingHours.length > 1 ? "er" : ""} saknar timmar`,
-      href: `/fordon/ny?date=${today}`,
+      href: `/dagsrapport/ny?date=${today}`,
     });
   }
 
@@ -77,7 +77,7 @@ function buildBackupItems(): StatusItem[] {
     items.push({
       id: "no-backup",
       message: "Backup rekommenderas — spara en kopia ibland.",
-      href: "/meny",
+      href: "/meny?export=1",
     });
   } else {
     const days = Math.floor(
@@ -87,7 +87,7 @@ function buildBackupItems(): StatusItem[] {
       items.push({
         id: "old-backup",
         message: `Backup är ${days} dagar gammal`,
-        href: "/meny",
+        href: "/meny?export=1",
       });
     }
   }
@@ -176,7 +176,7 @@ export function getDetailedStatusItems(): StatusItem[] {
       items.push({
         id: `hours-${l.id}`,
         message: `Rapport saknar timmar (${l.driverName ?? "okänd"})`,
-        href: `/fordon/ny?date=${today}`,
+        href: `/dagsrapport/ny?date=${today}`,
       })
     );
 

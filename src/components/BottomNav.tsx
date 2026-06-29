@@ -17,10 +17,11 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      aria-label="Huvudnavigation"
+      className="pointer-events-none fixed bottom-0 left-0 right-0 z-50 px-3"
+      style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))" }}
     >
-      <div className="mx-auto w-full max-w-md border-t border-border/60 bg-card/90 px-2 shadow-nav backdrop-blur-xl backdrop-saturate-150">
+      <div className="pointer-events-auto mx-auto w-full max-w-md rounded-[1.25rem] border border-border/70 bg-card/95 px-1 shadow-nav backdrop-blur-xl backdrop-saturate-150">
         <div className="flex items-stretch justify-around">
           {tabs.map((tab) => {
             const active =
@@ -30,15 +31,23 @@ export default function BottomNav() {
               <Link
                 key={tab.href}
                 href={tab.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-[50px] flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[10px]",
+                  "flex min-h-[58px] flex-1 flex-col items-center justify-center gap-1 py-2 text-xs",
                   active ? "text-primary" : "text-muted"
                 )}
               >
-                <Icon
-                  className="h-[22px] w-[22px]"
-                  strokeWidth={active ? 2.25 : 1.75}
-                />
+                <span
+                  className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-xl",
+                    active && "bg-primary/12"
+                  )}
+                >
+                  <Icon
+                    className="h-[22px] w-[22px]"
+                    strokeWidth={active ? 2.25 : 1.75}
+                  />
+                </span>
                 <span className={cn("leading-none", active ? "font-bold" : "font-medium")}>
                   {tab.label}
                 </span>

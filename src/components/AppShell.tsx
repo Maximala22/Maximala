@@ -8,7 +8,7 @@ import { seedContacts } from "@/lib/contacts";
 import BottomNav from "./BottomNav";
 
 const PUBLIC_PATHS = ["/login"];
-const FORM_PATHS = ["/jobb/ny", "/fordon/ny"];
+const FORM_PATHS = ["/jobb/ny", "/dagsrapport/ny"];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
