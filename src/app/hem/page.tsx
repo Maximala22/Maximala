@@ -59,7 +59,7 @@ export default function HemPage() {
         {capitalizeFirst(formatDate(new Date()))}
       </p>
 
-      {/* Huvudaction */}
+      {/* 1. Huvudaction */}
       <div className="mt-5">
         <ActionCard
           variant="primary"
@@ -71,7 +71,7 @@ export default function HemPage() {
         />
       </div>
 
-      {/* Sekundära actions — tydliga färger */}
+      {/* 2–3. Rapport + anteckning */}
       <div className="mt-3 grid grid-cols-2 gap-2.5">
         <ActionCard
           variant="report"
@@ -91,7 +91,19 @@ export default function HemPage() {
         />
       </div>
 
-      {/* Dagens fokus */}
+      {/* 4. Snabbkontakter */}
+      <div className="mt-3">
+        <ActionCard
+          variant="success"
+          size="md"
+          title="Snabbkontakter"
+          subtitle="Ring, SMS och mail"
+          icon={UsersRound}
+          href="/kontakter"
+        />
+      </div>
+
+      {/* 5. Dagens fokus */}
       <section className="mt-5">
         <SectionTitle>Dagens fokus</SectionTitle>
         <Card className="p-4">
@@ -123,104 +135,83 @@ export default function HemPage() {
               ))}
             </div>
           )}
-
-          <div className="mt-4 flex gap-2">
-            <Link href="/jobb/ny" className="flex-1">
-              <Button fullWidth size="sm">Skapa jobb</Button>
-            </Link>
-            <Link href="/fordon" className="flex-1">
-              <Button fullWidth size="sm" variant="secondary">
-                Lägg rapport
-              </Button>
-            </Link>
-          </div>
         </Card>
       </section>
 
-      {/* Snabbt */}
+      {/* Övriga genvägar */}
       <section className="mt-5">
         <SectionTitle>Snabbt</SectionTitle>
-        <div className="space-y-2.5">
+        <div className="grid grid-cols-2 gap-2.5">
           <ActionCard
-            variant="success"
-            size="md"
-            title="Snabbkontakter"
-            subtitle="Ring, SMS och mail"
-            icon={UsersRound}
-            href="/kontakter"
+            variant="info"
+            size="sm"
+            title="Outlook"
+            subtitle="Öppna mail"
+            icon={Mail}
+            onClick={openOutlook}
           />
-          <div className="grid grid-cols-2 gap-2.5">
-            <ActionCard
-              variant="info"
-              size="sm"
-              title="Outlook"
-              subtitle="Öppna mail"
-              icon={Mail}
-              onClick={openOutlook}
-            />
-            <ActionCard
-              variant="ai"
-              size="sm"
-              title="Fråga AI"
-              subtitle="Skriv texter"
-              icon={Sparkles}
-              href="/ai"
-            />
-            <ActionCard
-              variant="utility"
-              size="sm"
-              title="Räknare"
-              subtitle="Timmar & mått"
-              icon={Calculator}
-              href="/miniraknare"
-            />
-            <ActionCard
-              variant="neutral"
-              size="sm"
-              title="Support"
-              subtitle="Få hjälp"
-              icon={CircleHelp}
-              href="/support"
-            />
-          </div>
+          <ActionCard
+            variant="ai"
+            size="sm"
+            title="Fråga AI"
+            subtitle="Skriv texter"
+            icon={Sparkles}
+            href="/ai"
+          />
+          <ActionCard
+            variant="utility"
+            size="sm"
+            title="Räknare"
+            subtitle="Timmar & mått"
+            icon={Calculator}
+            href="/miniraknare"
+          />
+          <ActionCard
+            variant="neutral"
+            size="sm"
+            title="Support"
+            subtitle="Få hjälp"
+            icon={CircleHelp}
+            href="/support"
+          />
         </div>
       </section>
 
-      {/* Status — diskret, utan backup-dominans */}
-      <section className="mt-5">
+      {/* 6. Status — diskret */}
+      <section className="mt-5 mb-2">
         <SectionTitle>Status</SectionTitle>
         <Link href="/status">
           <Card
             interactive
-            className={`flex items-center gap-3 p-4 ${
+            className={`flex items-center gap-3 p-3.5 ${
               operational.allGood
-                ? "border-success/20 bg-successLight"
+                ? "border-success/15 bg-successLight/70"
                 : "border-warning/20 bg-warning-light"
             }`}
           >
             {operational.allGood ? (
-              <CheckCircle2 className="h-6 w-6 shrink-0 text-success" />
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
             ) : (
-              <AlertCircle className="h-6 w-6 shrink-0 text-warning" />
+              <AlertCircle className="h-5 w-5 shrink-0 text-warning" />
             )}
             <div className="min-w-0 flex-1">
-              <p className="font-bold text-text">{operational.summaryText}</p>
+              <p className="text-sm font-bold text-text">{operational.summaryText}</p>
               {!operational.allGood && operational.items[0] && (
-                <p className="mt-0.5 text-sm text-muted line-clamp-1">
+                <p className="mt-0.5 text-xs text-muted line-clamp-1">
                   {operational.items[0].message}
                 </p>
               )}
             </div>
-            <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
+            <ChevronRight className="h-4 w-4 shrink-0 text-muted" />
           </Card>
         </Link>
 
         {backupHint && (
           <Link href="/meny" className="mt-2 block">
-            <div className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-muted active:bg-background">
-              <Shield className="h-4 w-4 shrink-0 text-flemstromBlue" />
+            <div className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs text-muted active:bg-background">
+              <Shield className="h-3.5 w-3.5 shrink-0 text-flemstromBlue" />
               <span>{backupHint}</span>
-              <ChevronRight className="ml-auto h-4 w-4" />
+              <ChevronRight className="ml-auto h-3.5 w-3.5" />
             </div>
           </Link>
         )}

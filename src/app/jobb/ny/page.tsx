@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Button from "@/components/Button";
 import ImageUpload from "@/components/ImageUpload";
 import PageContainer from "@/components/PageContainer";
+import Toast from "@/components/Toast";
 import { createJob } from "@/lib/storage";
 import { JOB_STATUSES, type JobStatus } from "@/lib/types";
 
@@ -14,7 +15,7 @@ export default function NyttJobbPage() {
     <Suspense
       fallback={
         <PageContainer>
-          <Header title="Nytt jobb" subtitle="Skapa jobb snabbt" backHref="/jobb" />
+          <Header title="Nytt jobb" subtitle="Skapa ett jobb på några sekunder" backHref="/jobb" />
           <p className="mt-8 text-center text-muted">Laddar…</p>
         </PageContainer>
       }
@@ -29,16 +30,19 @@ function NyttJobbForm() {
   const searchParams = useSearchParams();
   const [title, setTitle] = useState("");
   const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
   const [address, setAddress] = useState("");
   const [status, setStatus] = useState<JobStatus>("Ej planerat");
   const [showMore, setShowMore] = useState(false);
+  const [customerPhone, setCustomerPhone] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [description, setDescription] = useState("");
   const [notes, setNotes] = useState("");
   const [imageIds, setImageIds] = useState<string[]>([]);
+  const [toast, setToast] = useState("");
+
+  const canSave = title.trim().length > 0;
 
   useEffect(() => {
     const presetDate = searchParams.get("date");
@@ -49,7 +53,7 @@ function NyttJobbForm() {
   }, [searchParams]);
 
   const handleSave = () => {
-    if (!title.trim()) return;
+    if (!canSave) return;
     const job = createJob({
       title: title.trim(),
       customerName: customerName || undefined,
@@ -63,17 +67,21 @@ function NyttJobbForm() {
       notes: notes || undefined,
       imageIds,
     });
-    router.push(`/jobb/${job.id}`);
+    setToast("Jobb sparat");
+    setTimeout(() => router.push(`/jobb/${job.id}`), 400);
   };
 
   return (
     <PageContainer>
-      <Header title="Nytt jobb" subtitle="Skapa jobb snabbt" backHref="/jobb" />
+      <Header
+        title="Nytt jobb"
+        subtitle="Fyll i det viktigaste först"
+        backHref="/jobb"
+      />
 
       <div className="mt-4 space-y-4">
         <Field label="Titel *" value={title} onChange={setTitle} placeholder="t.ex. Schaktning" />
         <Field label="Kundnamn" value={customerName} onChange={setCustomerName} />
-        <Field label="Telefon" value={customerPhone} onChange={setCustomerPhone} type="tel" />
         <Field
           label="Adress / plats"
           value={address}
@@ -81,43 +89,62 @@ function NyttJobbForm() {
           placeholder="t.ex. Handelsvägen 9, Luleå"
         />
         <div>
-          <label className="mb-1 block text-sm font-medium text-muted">Status</label>
+          <label className="label-upper mb-1.5 block">Status</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as JobStatus)}
-            className="w-full rounded-2xl border border-border bg-card px-4 py-3"
+            className="input-field"
           >
             {JOB_STATUSES.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
         </div>
-        <Button fullWidth size="lg" onClick={handleSave} disabled={!title.trim()}>
-          Spara jobb
-        </Button>
+
+        <div>
+          <Button fullWidth size="lg" onClick={handleSave} disabled={!canSave}>
+            {canSave ? "Spara jobb" : "Fyll i titel först"}
+          </Button>
+          {!canSave && (
+            <p className="mt-2 text-center text-xs text-muted">
+              Skriv en titel på jobbet för att kunna spara.
+            </p>
+          )}
+        </div>
 
         <button
           type="button"
           onClick={() => setShowMore(!showMore)}
-          className="w-full text-center text-sm font-medium text-primary"
+          className="w-full rounded-xl py-2 text-center text-sm font-semibold text-primary"
         >
-          {showMore ? "▲ Dölj mer information" : "▼ Mer information"}
+          {showMore ? "▲ Dölj mer information" : "▼ Mer information (valfritt)"}
         </button>
 
         {showMore && (
           <div className="space-y-4 border-t border-border pt-4">
+            <Field label="Telefon" value={customerPhone} onChange={setCustomerPhone} type="tel" />
             <Field label="Datum" value={date} onChange={setDate} type="date" />
             <Field label="Tid" value={time} onChange={setTime} type="time" />
             <Field label="E-post" value={customerEmail} onChange={setCustomerEmail} type="email" />
             <TextArea label="Beskrivning" value={description} onChange={setDescription} />
             <TextArea label="Anteckningar" value={notes} onChange={setNotes} />
             <div>
-              <label className="mb-2 block text-sm font-medium text-muted">Bilder</label>
-              <ImageUpload imageIds={imageIds} onChange={setImageIds} />
+              <label className="label-upper mb-1.5 block">Bilder</label>
+              <ImageUpload
+                imageIds={imageIds}
+                onChange={setImageIds}
+                context="jobbet"
+                onToast={setToast}
+              />
             </div>
+            <Button fullWidth size="lg" onClick={handleSave} disabled={!canSave}>
+              {canSave ? "Spara jobb" : "Fyll i titel först"}
+            </Button>
           </div>
         )}
       </div>
+
+      <Toast message={toast} visible={!!toast} />
     </PageContainer>
   );
 }
@@ -137,13 +164,13 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-sm font-medium text-muted">{label}</label>
+      <label className="label-upper mb-1.5 block">{label}</label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-border bg-card px-4 py-3 outline-none focus:border-primary"
+        className="input-field"
       />
     </div>
   );
@@ -160,12 +187,12 @@ function TextArea({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-sm font-medium text-muted">{label}</label>
+      <label className="label-upper mb-1.5 block">{label}</label>
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={3}
-        className="w-full rounded-2xl border border-border bg-card px-4 py-3 outline-none focus:border-primary"
+        className="input-field resize-none"
       />
     </div>
   );

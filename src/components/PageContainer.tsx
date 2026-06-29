@@ -14,7 +14,7 @@ export default function PageContainer({ children, className, compact }: PageCont
         "mx-auto w-full max-w-md px-4",
         compact
           ? "pb-6 pt-[max(0.75rem,env(safe-area-inset-top))]"
-          : "pb-[calc(120px+env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top))]",
+          : "nav-safe-bottom pt-[max(0.75rem,env(safe-area-inset-top))]",
         className
       )}
     >

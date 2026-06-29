@@ -90,7 +90,7 @@ export default function MiniraknarePage() {
         <CalcBtn label="." onClick={() => input(".")} />
       </div>
 
-      <section className="mt-5 space-y-3">
+      <section className="mt-5 space-y-2">
         <SectionTitle>Arbetsräknare</SectionTitle>
         <WorkCalc title="Timmar × timpris" fields={["Timmar", "Timpris (kr)"]} calc={(a, b) => `${(a * b).toLocaleString("sv-SE")} kr`} />
         <WorkCalc title="Antal × pris" fields={["Antal", "Pris (kr)"]} calc={(a, b) => `${(a * b).toLocaleString("sv-SE")} kr`} />
@@ -121,10 +121,12 @@ function CalcBtn({ label, onClick, variant = "num", className = "" }: { label: s
 function WorkCalc({ title, fields, calc }: { title: string; fields: string[]; calc: (a: number, b: number) => string }) {
   const [a, setA] = useState("");
   const [b, setB] = useState("");
-  const result = a && b ? calc(parseFloat(a.replace(",", ".")), parseFloat(b.replace(",", "."))) : null;
+  const numA = parseFloat(a.replace(",", "."));
+  const numB = parseFloat(b.replace(",", "."));
+  const result = a && b && !isNaN(numA) && !isNaN(numB) ? calc(numA, numB) : null;
 
   return (
-    <Card className="py-3">
+    <Card className="py-2.5">
       <p className="text-sm font-semibold">{title}</p>
       <div className="mt-2 grid grid-cols-2 gap-2">
         {fields.map((f, i) => (
@@ -138,7 +140,9 @@ function WorkCalc({ title, fields, calc }: { title: string; fields: string[]; ca
           />
         ))}
       </div>
-      {result && <p className="mt-2 text-base font-bold text-primary">{result}</p>}
+      <p className={`mt-2 text-sm font-bold ${result ? "text-primary" : "text-muted/50"}`}>
+        {result ?? "–"}
+      </p>
     </Card>
   );
 }

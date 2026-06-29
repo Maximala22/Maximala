@@ -8,9 +8,16 @@ import Button from "./Button";
 type ImageUploadProps = {
   imageIds: string[];
   onChange: (ids: string[]) => void;
+  context?: "jobbet" | "rapporten" | "anteckningen";
+  onToast?: (message: string) => void;
 };
 
-export default function ImageUpload({ imageIds, onChange }: ImageUploadProps) {
+export default function ImageUpload({
+  imageIds,
+  onChange,
+  context = "jobbet",
+  onToast,
+}: ImageUploadProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [lightbox, setLightbox] = useState<string | null>(null);
@@ -35,6 +42,7 @@ export default function ImageUpload({ imageIds, onChange }: ImageUploadProps) {
       if (img) setPreviews((p) => ({ ...p, [id]: img.dataUrl }));
       onChange([...imageIds, id]);
       setError(null);
+      onToast?.("Bild tillagd");
     } catch {
       setError("Kunde inte spara bilden.");
     }
@@ -50,11 +58,12 @@ export default function ImageUpload({ imageIds, onChange }: ImageUploadProps) {
       delete next[id];
       return next;
     });
+    onToast?.("Bild borttagen");
   };
 
   return (
     <div className="space-y-3">
-      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-background px-4 py-5 text-sm font-medium text-muted transition hover:border-primary/50 hover:bg-card active:scale-[0.99]">
+      <label className="flex min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-background px-4 py-4 text-sm font-medium text-muted transition hover:border-primary/50 hover:bg-card active:scale-[0.99]">
         {loading ? (
           <>
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -75,7 +84,24 @@ export default function ImageUpload({ imageIds, onChange }: ImageUploadProps) {
           disabled={loading}
         />
       </label>
+
+      {imageIds.length > 0 && (
+        <p className="text-xs text-muted">
+          {imageIds.length === 1
+            ? "1 bild tillagd"
+            : `${imageIds.length} bilder tillagda`}
+          . Bilden sparas när du sparar {context}.
+        </p>
+      )}
+
+      {imageIds.length === 0 && (
+        <p className="text-xs text-muted">
+          Bilden sparas när du sparar {context}.
+        </p>
+      )}
+
       {error && <p className="text-sm text-danger">{error}</p>}
+
       <div className="flex flex-wrap gap-2">
         {imageIds.map((id) => {
           if (!previews[id]) loadPreview(id);
@@ -85,13 +111,14 @@ export default function ImageUpload({ imageIds, onChange }: ImageUploadProps) {
                 <>
                   <img
                     src={previews[id]}
-                    alt=""
+                    alt="Förhandsgranskning"
                     className="h-20 w-20 rounded-2xl object-cover shadow-card"
                     onClick={() => setLightbox(previews[id])}
                   />
                   <button
                     type="button"
                     onClick={() => handleRemove(id)}
+                    aria-label="Ta bort bild"
                     className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-danger text-white shadow-card"
                   >
                     <X className="h-3.5 w-3.5" />
@@ -102,6 +129,11 @@ export default function ImageUpload({ imageIds, onChange }: ImageUploadProps) {
           );
         })}
       </div>
+
+      {imageIds.length > 0 && (
+        <p className="text-xs text-muted">Tryck på bilden för att förstora.</p>
+      )}
+
       {lightbox && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"

@@ -21,7 +21,10 @@ export default function SupportPage() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
+  const canSend = subject.trim().length > 0 && message.trim().length > 0;
+
   const handleContact = () => {
+    if (!canSend) return;
     const userName = name || getUserName() || "";
     const body = `Namn: ${userName}\nÄrende: ${subject}\n\n${message}`;
     const href = mailHref("flemstromelliot@gmail.com", `Support Jobbminne: ${subject}`, body);
@@ -38,33 +41,34 @@ export default function SupportPage() {
           icon={Sparkles}
           title="Fråga Jobbminne AI"
           text="Få hjälp att skriva texter"
-          color="bg-purple-100 text-purple-700"
+          color="bg-aiPurpleLight text-aiPurple"
         />
         <HelpLink
           href="mailto:flemstromelliot@gmail.com"
           icon={Mail}
           title="Kontakta Elliot"
           text="Skicka mail direkt"
-          color="bg-blue-100 text-flemstromBlue"
+          color="bg-flemstromBlueLight text-flemstromBlue"
         />
         <HelpLink
           href="/installera"
           icon={BookOpen}
           title="Så använder du appen"
           text="Installera på hemskärmen"
-          color="bg-emerald-100 text-emerald-700"
+          color="bg-successLight text-success"
         />
         <HelpLink
           href="/meny"
           icon={Shield}
           title="Backup & säkerhet"
           text="Exportera och spara din data"
-          color="bg-amber-100 text-amber-700"
+          color="bg-note-light text-note-dark"
         />
       </div>
 
       <Card className="mt-6 space-y-3">
         <p className="font-semibold">Skicka ärende via mail</p>
+        <p className="text-sm text-muted">Skickas som e-post till Elliot.</p>
         <input
           placeholder="Ditt namn"
           value={name}
@@ -84,8 +88,8 @@ export default function SupportPage() {
           rows={4}
           className="input-field resize-none"
         />
-        <Button fullWidth onClick={handleContact} disabled={!subject || !message}>
-          Skicka via mail
+        <Button fullWidth onClick={handleContact} disabled={!canSend}>
+          {canSend ? "Skicka via mail" : "Fyll i ärende och meddelande"}
         </Button>
       </Card>
 

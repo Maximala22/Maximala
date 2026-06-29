@@ -132,7 +132,7 @@ export default function KalenderPage() {
         {selectedJobs.length === 0 && selectedLogs.length === 0 ? (
           <Card className="flex flex-col items-center py-6 text-center">
             <CalendarDays className="mb-3 h-8 w-8 text-muted" />
-            <p className="text-muted">Inga jobb denna dag.</p>
+            <p className="text-muted">Inga jobb eller rapporter denna dag.</p>
             <div className="mt-4 flex w-full flex-col gap-2">
               <Link href={`/jobb/ny?date=${selectedDate}`}>
                 <Button fullWidth variant="secondary" className="gap-2">

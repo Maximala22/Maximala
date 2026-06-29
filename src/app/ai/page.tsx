@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
   Mail,
   MessageSquare,
@@ -14,44 +13,53 @@ import Header from "@/components/Header";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
 import PageContainer from "@/components/PageContainer";
+import Toast from "@/components/Toast";
 import { copyToClipboard } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 const QUICK_PROMPTS = [
+  {
+    label: "Skriv arbetsrapport",
+    prompt: "Skriv en tydlig arbetsrapport baserat på detta: ",
+    icon: FileText,
+    iconBg: "bg-primary/12 text-primary",
+    card: "border-primary/15 bg-primaryLight/40",
+    featured: true,
+  },
   {
     label: "Skriv mejl",
     prompt: "Skriv ett kort och vänligt mejl till kunden om att ",
     icon: Mail,
-    color: "from-blue-500 to-blue-600",
+    iconBg: "bg-flemstromBlue/12 text-flemstromBlue",
+    card: "border-flemstromBlue/10 bg-flemstromBlueLight/50",
   },
   {
     label: "Skriv SMS",
     prompt: "Skriv ett kort SMS till kunden om att ",
     icon: MessageSquare,
-    color: "from-green-500 to-emerald-600",
+    iconBg: "bg-success/12 text-success",
+    card: "border-success/10 bg-successLight/60",
   },
   {
     label: "Förbättra text",
     prompt: "Förbättra den här texten: ",
     icon: PenLine,
-    color: "from-violet-500 to-purple-600",
-  },
-  {
-    label: "Skriv arbetsrapport",
-    prompt: "Skriv en tydlig arbetsrapport baserat på detta: ",
-    icon: FileText,
-    color: "from-amber-500 to-orange-600",
+    iconBg: "bg-aiPurple/12 text-aiPurple",
+    card: "border-aiPurple/10 bg-aiPurpleLight/50",
   },
   {
     label: "Förklara appen",
     prompt: "Förklara enkelt hur jag ",
     icon: HelpCircle,
-    color: "from-cyan-500 to-teal-600",
+    iconBg: "bg-utilityCyan/12 text-utilityCyan-dark",
+    card: "border-utilityCyan/10 bg-utilityCyanLight/50",
   },
   {
     label: "Fråga fritt",
     prompt: "",
     icon: Sparkles,
-    color: "from-primary to-primaryDark",
+    iconBg: "bg-background text-muted",
+    card: "border-border bg-card",
   },
 ];
 
@@ -63,7 +71,9 @@ export default function AIPage() {
   const [loading, setLoading] = useState(false);
   const [source, setSource] = useState<ResponseSource>(null);
   const [errorMsg, setErrorMsg] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [toast, setToast] = useState("");
+
+  const canAsk = prompt.trim().length > 0;
 
   const ask = async () => {
     const q = prompt.trim();
@@ -96,7 +106,7 @@ export default function AIPage() {
         setErrorMsg("AI-tjänsten svarade inte just nu. Visar exempel.");
       }
     } catch {
-      setResponse("Kunde inte nå AI just nu. Kontrollera nätverket och försök igen.");
+      setResponse("AI-tjänsten svarade inte just nu. Kontrollera nätverket och försök igen.");
       setSource("error");
     }
 
@@ -120,7 +130,7 @@ export default function AIPage() {
       {!response && (
         <section className="mt-4">
           <p className="mb-3 text-sm font-semibold text-text">Vad vill du göra?</p>
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-2">
             {QUICK_PROMPTS.map((q) => {
               const Icon = q.icon;
               return (
@@ -128,10 +138,29 @@ export default function AIPage() {
                   key={q.label}
                   type="button"
                   onClick={() => setPrompt(q.prompt)}
-                  className={`flex min-h-[88px] flex-col justify-between rounded-[1.15rem] bg-gradient-to-br ${q.color} p-3.5 text-left text-white shadow-card transition active:scale-[0.98]`}
+                  className={cn(
+                    "flex min-h-[80px] flex-col justify-between rounded-[1.15rem] border p-3 text-left transition active:scale-[0.98]",
+                    q.card,
+                    q.featured && "col-span-2 min-h-[72px] flex-row items-center gap-3"
+                  )}
                 >
-                  <Icon className="h-5 w-5 opacity-90" strokeWidth={2} />
-                  <span className="text-sm font-semibold leading-snug">{q.label}</span>
+                  <div
+                    className={cn(
+                      "flex shrink-0 items-center justify-center rounded-xl",
+                      q.iconBg,
+                      q.featured ? "h-10 w-10" : "h-9 w-9"
+                    )}
+                  >
+                    <Icon className="h-5 w-5" strokeWidth={2} />
+                  </div>
+                  <span
+                    className={cn(
+                      "font-bold leading-snug text-text",
+                      q.featured ? "text-base" : "text-sm"
+                    )}
+                  >
+                    {q.label}
+                  </span>
                 </button>
               );
             })}
@@ -151,10 +180,10 @@ export default function AIPage() {
       />
 
       <div className="mt-3 flex gap-2">
-        <Button fullWidth onClick={ask} disabled={loading || !prompt.trim()}>
-          {loading ? "Tänker…" : "Fråga AI"}
+        <Button fullWidth onClick={ask} disabled={loading || !canAsk}>
+          {loading ? "Tänker…" : canAsk ? "Fråga AI" : "Skriv en fråga först"}
         </Button>
-        {(prompt || response) && (
+        {prompt.trim() && (
           <Button variant="secondary" onClick={clearAll}>
             Rensa
           </Button>
@@ -164,7 +193,7 @@ export default function AIPage() {
       {response && (
         <Card className="mt-4">
           {source === "openai" && (
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-flemstromBlue">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-flemstromBlue">
               AI-svar
             </p>
           )}
@@ -180,11 +209,11 @@ export default function AIPage() {
               size="sm"
               onClick={async () => {
                 await copyToClipboard(response);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
+                setToast("Kopierat");
+                setTimeout(() => setToast(""), 2000);
               }}
             >
-              {copied ? "Kopierad!" : "Kopiera svar"}
+              Kopiera svar
             </Button>
             <Button variant="ghost" size="sm" onClick={clearAll}>
               Rensa
@@ -192,6 +221,8 @@ export default function AIPage() {
           </div>
         </Card>
       )}
+
+      <Toast message={toast} visible={!!toast} />
     </PageContainer>
   );
 }

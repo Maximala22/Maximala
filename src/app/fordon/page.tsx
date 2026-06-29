@@ -111,7 +111,7 @@ export default function FordonPage() {
       </Card>
 
       {savedToast && (
-        <div className="fixed bottom-[calc(120px+env(safe-area-inset-bottom))] left-1/2 z-50 -translate-x-1/2 rounded-full bg-success px-5 py-2.5 text-sm font-semibold text-white shadow-lift">
+        <div className="fixed bottom-[calc(148px+env(safe-area-inset-bottom,0px))] left-1/2 z-50 -translate-x-1/2 rounded-full bg-success px-5 py-2.5 text-sm font-semibold text-white shadow-lift">
           Rapport sparad
         </div>
       )}
@@ -452,7 +452,7 @@ function WorkLogForm({
           className="input-field resize-none"
         />
       </div>
-      <ImageUpload imageIds={imageIds} onChange={setImageIds} />
+      <ImageUpload imageIds={imageIds} onChange={setImageIds} context="rapporten" />
       <Button fullWidth onClick={handleSubmit}>
         {saved ? "Sparat!" : "Spara rapport"}
       </Button>

@@ -108,7 +108,9 @@ export default function ActionCard({
   const s = styles[variant];
   const isHero = size === "hero";
   const isSm = size === "sm";
-  const useGradient = isHero || size === "md";
+  const useGradient =
+    (isHero && variant === "primary") ||
+    (size === "md" && (variant === "primary" || variant === "report"));
 
   const inner = (
     <>

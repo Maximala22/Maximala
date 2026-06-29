@@ -25,6 +25,7 @@ import Card from "@/components/Card";
 import Button from "@/components/Button";
 import PageContainer from "@/components/PageContainer";
 import SectionTitle from "@/components/SectionTitle";
+import Toast from "@/components/Toast";
 import { clearUser, getArchivedJobs } from "@/lib/storage";
 import { downloadBackup, importBackup, getBackupWarning } from "@/lib/backup";
 import { resetFleetDefaults } from "@/lib/fleetStorage";
@@ -51,6 +52,7 @@ export default function MenyPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState("");
   const [resetMsg, setResetMsg] = useState("");
+  const [toast, setToast] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const backupWarning = getBackupWarning();
   const archived = getArchivedJobs();
@@ -92,7 +94,16 @@ export default function MenyPage() {
         <div className="space-y-2">
           {viktigtItems.map((item) =>
             item.action === "export" ? (
-              <button key={item.label} type="button" onClick={downloadBackup} className="w-full">
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => {
+                  downloadBackup();
+                  setToast("Backup exporterad");
+                  setTimeout(() => setToast(""), 2500);
+                }}
+                className="w-full"
+              >
                 <MenuRow {...item} href={item.href} />
               </button>
             ) : (
@@ -170,6 +181,8 @@ export default function MenyPage() {
                 resetFleetDefaults();
                 resetContactsDefaults();
                 setResetMsg("Standarddata återställd.");
+                setToast("Standarddata återställd");
+                setTimeout(() => setToast(""), 2500);
                 setTimeout(() => setResetMsg(""), 3000);
               }
             }}
@@ -207,6 +220,8 @@ export default function MenyPage() {
           Logga ut
         </Button>
       </section>
+
+      <Toast message={toast} visible={!!toast} />
     </PageContainer>
   );
 }

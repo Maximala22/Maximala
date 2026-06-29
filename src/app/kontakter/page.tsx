@@ -36,7 +36,7 @@ export default function KontakterPage() {
       />
 
       {favorites.length > 0 && (
-        <section className="mt-5">
+        <section className="mt-4">
           <SectionTitle>Favoriter</SectionTitle>
           <div className="space-y-2">
             {favorites.map((c) => (
@@ -46,7 +46,7 @@ export default function KontakterPage() {
         </section>
       )}
 
-      <section className="mt-5">
+      <section className="mt-4">
         <SectionTitle>{favorites.length > 0 ? "Alla kontakter" : "Kontakter"}</SectionTitle>
         <div className="space-y-2">
           {(favorites.length > 0 ? others : contacts).map((c) => (
@@ -64,33 +64,51 @@ function ContactCard({
   contact: ReturnType<typeof searchContacts>[number];
 }) {
   const hasPhone = !!c.phone?.trim();
+  const hasEmail = !!c.email?.trim();
+  const hasAddress = !!c.address?.trim();
+
+  const actions: { label: string; href?: string | null; onClick?: () => void; primary?: boolean }[] = [];
+
+  if (hasPhone) {
+    actions.push({ label: "Ring", href: phoneHref(c.phone), primary: true });
+    actions.push({ label: "SMS", href: smsHref(c.phone) });
+    actions.push({ label: "WhatsApp", href: whatsappHref(c.phone) });
+  }
+  if (hasEmail) {
+    actions.push({ label: "Mail", href: mailHref(c.email), primary: !hasPhone });
+  }
+  if (hasAddress) {
+    actions.push({ label: "Karta", onClick: () => openMaps(c.address!) });
+  }
 
   return (
     <Card className="py-3">
-      <div>
-        <p className="font-semibold">
-          {c.name}
-          {c.favorite && <span className="ml-1 text-amber-500">★</span>}
-        </p>
-        <p className="text-sm text-muted">
-          {c.role}
-          {c.company ? ` · ${c.company}` : ""}
-        </p>
-        {c.phone ? (
-          <p className="text-sm">{c.phone}</p>
-        ) : (
-          <p className="text-xs text-muted/70">Telefon saknas</p>
-        )}
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-semibold leading-snug">
+            {c.name}
+            {c.favorite && <span className="ml-1 text-note">★</span>}
+          </p>
+          <p className="text-sm text-muted">
+            {c.role}
+            {c.company ? ` · ${c.company}` : ""}
+          </p>
+          {c.phone && <p className="mt-0.5 text-sm">{c.phone}</p>}
+        </div>
       </div>
-      <div className="mt-2.5 grid grid-cols-2 gap-1.5">
-        <ContactBtn href={phoneHref(c.phone)} disabled={!hasPhone} label="Ring" primary={hasPhone} />
-        <ContactBtn href={smsHref(c.phone)} disabled={!hasPhone} label="SMS" />
-        <ContactBtn href={whatsappHref(c.phone)} disabled={!hasPhone} label="WhatsApp" />
-        <ContactBtn href={mailHref(c.email)} disabled={!c.email} label="Mail" primary={!!c.email} />
-        {c.address && (
-          <ContactBtn onClick={() => openMaps(c.address!)} label="Karta" className="col-span-2" />
-        )}
+
+      <div className="mt-2 space-y-1">
+        {!hasPhone && <p className="text-xs text-muted">Telefon saknas</p>}
+        {!hasEmail && <p className="text-xs text-muted">Ingen e-post angiven</p>}
       </div>
+
+      {actions.length > 0 && (
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          {actions.map((a) => (
+            <ContactBtn key={a.label} {...a} />
+          ))}
+        </div>
+      )}
     </Card>
   );
 }
@@ -99,39 +117,29 @@ function ContactBtn({
   label,
   href,
   onClick,
-  disabled,
   primary,
-  className = "",
 }: {
   label: string;
   href?: string | null;
   onClick?: () => void;
-  disabled?: boolean;
   primary?: boolean;
-  className?: string;
 }) {
-  const base = `rounded-xl px-3 py-2 text-center text-sm font-medium ${className}`;
-
-  if (disabled) {
-    return (
-      <span className={`${base} bg-background text-muted/50`}>{label}</span>
-    );
-  }
-
   const styles = primary
-    ? `${base} border border-primary/30 bg-primary/10 text-primary`
-    : `${base} border border-border bg-card`;
+    ? "border border-primary/30 bg-primary/10 text-primary font-semibold"
+    : "border border-border bg-card text-text font-medium";
+
+  const base = `inline-flex min-h-[40px] items-center rounded-xl px-3.5 py-2 text-sm active:scale-[0.98] ${styles}`;
 
   if (href) {
     return (
-      <a href={href} className={styles}>
+      <a href={href} className={base}>
         {label}
       </a>
     );
   }
 
   return (
-    <button type="button" onClick={onClick} className={styles}>
+    <button type="button" onClick={onClick} className={base}>
       {label}
     </button>
   );
